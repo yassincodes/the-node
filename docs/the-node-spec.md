@@ -130,7 +130,7 @@ What the code does today — honestly:
 - **Storage:** entries in plain JSON at `~/.thenode/data.json`, each signed with the node's private key
 - **Verification:** `python main.py verify` checks all signatures
 - **Encryption at rest:** not yet — planned; v1 is signed, not encrypted
-- **Network:** no peer discovery or sharing yet — single node only
+- **Network:** local-network peer discovery works (`discover`, mDNS, presence only). No sharing yet, no internet-wide discovery — nodes see each other on the same Wi-Fi and nothing more
 - **External calls:** `ask` sends context to OpenRouter only when you run it with a key in `.env`
 - **Presence:** local only via `python main.py serve` on port 5050
 

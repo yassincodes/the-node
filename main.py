@@ -40,6 +40,8 @@ The Node — commands:
   search "keyword"      Search your stored entries.
   summary               What your node knows about you so far.
   verify                Check signatures on all stored entries.
+  discover [seconds]    Announce presence and see other nodes on your
+                        local network. Presence only — nothing shared.
   status                Show your node status.
   ask "question"        Route a question through your node context.
                         Put your key in .env (in this folder).
@@ -114,6 +116,17 @@ def main():
         print(f"\nVerified {valid}/{total} entries.")
         if invalid:
             print(f"WARNING: {invalid} entries failed verification.")
+
+    elif cmd == "discover":
+        from node.discovery import discover
+        seconds = 10
+        if len(args) > 1:
+            try:
+                seconds = int(args[1])
+            except ValueError:
+                print("Usage: python main.py discover [seconds]")
+                return
+        discover(seconds)
 
     elif cmd == "ask":
         if len(args) < 2:

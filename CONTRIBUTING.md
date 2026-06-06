@@ -10,7 +10,8 @@ This is an open source project. If you believe in the idea, here is what needs t
 - Natural language storage in `~/.thenode/`, signed by private key
 - Keyword search, memory retrieval, and `verify` for signatures
 - Routing queries to OpenRouter **only when you run `ask`**
-- A local presence page via `serve` (no peer discovery yet)
+- A local presence page via `serve`
+- Local-network peer discovery via `discover` (mDNS, presence only)
 
 ---
 
@@ -28,19 +29,14 @@ This is an open source project. If you believe in the idea, here is what needs t
 
 ### 1. Peer discovery
 
-Nodes need to find each other. Right now every node is isolated.
+**Local-network discovery is built** (`node/discovery.py`, `python main.py discover`). It uses mDNS — no server — so nodes on the same Wi-Fi see each other's presence. Nothing is shared but a node ID and a public-key fingerprint.
 
-What it should do:
-- A node can announce its presence on a local network
-- Other nodes on the same network can see it exists
-- No content is shared automatically — just presence
-
-Options to explore:
-- mDNS for local network discovery (no server needed)
-- A lightweight signaling server for nodes across different networks
+What still needs building:
+- Discovery across different networks (a lightweight signaling server, or DHT)
 - WebRTC for peer-to-peer connections without a central server
+- NAT traversal so two nodes behind different routers can find each other
 
-The goal is minimal infrastructure. Ideally no central server at all.
+The goal stays the same: minimal infrastructure. Ideally no central server at all. Local presence first; reach the wider network without recreating a headquarters.
 
 ---
 

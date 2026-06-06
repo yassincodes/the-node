@@ -174,12 +174,14 @@ The rest will come.
 - Keyword search, summary, and signature verification on your entries
 - Routes queries to external AI models via OpenRouter **only when you run `ask`**
 - Shows a presence page on localhost when you run `serve`
+- Finds other nodes on your local network with `discover` — presence only, no server
 
 ## What it does not do
 
 - Send your data anywhere automatically
-- Connect to a central server or other nodes (yet)
-- Share anything without your explicit choice
+- Share anything without your explicit choice — discovery exchanges presence, never content
+- Connect to a central server — discovery is peer-to-peer (mDNS) on your local network
+- Reach nodes beyond your local network yet (no internet-wide discovery)
 - Encrypt data at rest yet (v1 — signed, not encrypted; see spec)
 
 ---
@@ -213,6 +215,9 @@ python main.py summary
 # Verify all entry signatures
 python main.py verify
 
+# See other nodes on your local network (presence only, nothing shared)
+python main.py discover
+
 # Check status
 python main.py status
 
@@ -242,7 +247,8 @@ the-node/
 ├── requirements.txt
 ├── node/
 │   ├── core.py          # Activation, storage, signing
-│   └── memory.py        # Search, context, summary
+│   ├── memory.py        # Search, context, summary
+│   └── discovery.py     # Local-network peer presence (mDNS)
 ├── routing/
 │   └── router.py        # Query routing via OpenRouter
 ├── presence/
