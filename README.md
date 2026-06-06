@@ -170,16 +170,17 @@ The rest will come.
 ## What it does
 
 - Activates with a local cryptographic keypair — private key never leaves your device
-- Stores natural language input you choose to feed it
-- Signs every entry so origin is verifiable
-- Routes queries to external AI models using your stored context
-- Shows a presence page — other nodes can see you exist, nothing more
+- Stores natural language input locally in `~/.thenode/` — signed, verifiable
+- Keyword search, summary, and signature verification on your entries
+- Routes queries to external AI models via OpenRouter **only when you run `ask`**
+- Shows a presence page on localhost when you run `serve`
 
 ## What it does not do
 
 - Send your data anywhere automatically
-- Connect to a central server
+- Connect to a central server or other nodes (yet)
 - Share anything without your explicit choice
+- Encrypt data at rest yet (v1 — signed, not encrypted; see spec)
 
 ---
 
@@ -188,7 +189,7 @@ The rest will come.
 ```bash
 git clone https://github.com/yassincodes/the-node
 cd the-node
-pip install cryptography
+pip install -r requirements.txt
 ```
 
 ---
@@ -205,8 +206,18 @@ python main.py store "today I worked on the routing system"
 # Read your entries
 python main.py read
 
+# Search and summary
+python main.py search "routing"
+python main.py summary
+
+# Verify all entry signatures
+python main.py verify
+
 # Check status
 python main.py status
+
+# Local presence server (then open presence/index.html)
+python main.py serve
 
 # Ask a question — routes through your stored context (via OpenRouter)
 # Open .env in this folder and paste your OpenRouter key there.
@@ -217,7 +228,7 @@ python main.py ask "what have I been working on?"
 
 ## Presence page
 
-Open `presence/index.html` in your browser. It shows your node is active. Nothing else.
+Run `python main.py serve`, then open `presence/index.html` in your browser. It shows your node is active on this machine. Nothing else. No network discovery yet.
 
 ---
 
@@ -226,27 +237,32 @@ Open `presence/index.html` in your browser. It shows your node is active. Nothin
 ```
 the-node/
 ├── main.py              # CLI entry point
+├── server.py            # Local presence server
+├── CONTRIBUTING.md      # What needs to be built
+├── requirements.txt
 ├── node/
-│   └── core.py          # Activation, storage, signing
+│   ├── core.py          # Activation, storage, signing
+│   └── memory.py        # Search, context, summary
 ├── routing/
-│   └── router.py        # Query routing to external models
+│   └── router.py        # Query routing via OpenRouter
 ├── presence/
 │   └── index.html       # Presence page
 └── docs/
     ├── the-node.md      # The philosophy
     ├── the-node-spec.md # Technical decisions
-    └── history.md       # Hegel, collision, the node as act
+    ├── history.md       # Hegel, collision, the node as act
+    └── science.md       # Evolution, society, the mechanism
 ```
 
 ---
 
-## Philosophy
+## Docs
 
-Every human gets a node. The node stores what they choose to feed it. It connects to others only when they choose. The data is signed, verifiable, and owned by the person carrying it.
-
-Read the full thought: [docs/the-node.md](docs/the-node.md)
-
-Read the history: [docs/history.md](docs/history.md)
+- [docs/the-node.md](docs/the-node.md) — the philosophy
+- [docs/history.md](docs/history.md) — Hegel, collision, the node as act
+- [docs/science.md](docs/science.md) — evolution, society, the mechanism
+- [docs/the-node-spec.md](docs/the-node-spec.md) — technical decisions
+- [CONTRIBUTING.md](CONTRIBUTING.md) — what to build next
 
 ---
 

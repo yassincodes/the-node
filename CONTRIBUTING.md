@@ -7,10 +7,19 @@ This is an open source project. If you believe in the idea, here is what needs t
 ## What exists right now
 
 - Local node activation with keypair generation
-- Natural language storage, signed by private key
-- Keyword search and memory retrieval
-- Routing queries to external AI models using stored context
-- A presence page (static, no live network yet)
+- Natural language storage in `~/.thenode/`, signed by private key
+- Keyword search, memory retrieval, and `verify` for signatures
+- Routing queries to OpenRouter **only when you run `ask`**
+- A local presence page via `serve` (no peer discovery yet)
+
+---
+
+## Read before you build
+
+- [docs/the-node.md](docs/the-node.md) — the philosophy
+- [docs/history.md](docs/history.md) — Hegel, collision, the node as act
+- [docs/science.md](docs/science.md) — evolution, society, the mechanism
+- [docs/the-node-spec.md](docs/the-node-spec.md) — technical decisions
 
 ---
 
@@ -86,7 +95,7 @@ No overengineering. No new dependencies unless absolutely necessary. Keep it as 
 
 ## Philosophy
 
-Read `docs/the-node.md` before building anything.
+Read [docs/the-node.md](docs/the-node.md), [docs/history.md](docs/history.md), and [docs/science.md](docs/science.md) before building anything.
 
 The code should reflect the philosophy. Simple, honest, open. If you find yourself adding complexity that the docs don't justify, stop and ask why.
 

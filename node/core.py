@@ -129,6 +129,33 @@ def store(text: str, source: str = "computer"):
     return entry["id"]
 
 
+def verify(entry: dict) -> bool:
+    """Verify an entry's signature against the node's public key."""
+    public_key = load_public_key()
+    signature = bytes.fromhex(entry["signature"])
+    public_key.verify(
+        signature,
+        entry["content"].encode(),
+        padding.PKCS1v15(),
+        hashes.SHA256(),
+    )
+    return True
+
+
+def verify_all() -> tuple[int, int]:
+    """Verify all stored entries. Returns (valid_count, invalid_count)."""
+    entries = read(limit=9999)
+    valid = 0
+    invalid = 0
+    for entry in entries:
+        try:
+            verify(entry)
+            valid += 1
+        except Exception:
+            invalid += 1
+    return valid, invalid
+
+
 def read(limit: int = 10):
     """Read the last N entries from your node."""
     if not DATA_FILE.exists():

@@ -120,3 +120,18 @@ No hidden logic. No black box. The code should be able to explain itself.
 
 *Spec version 1. June 6, 2026.*
 *Decisions made. Ready to build.*
+
+---
+
+## Current implementation (v1)
+
+What the code does today — honestly:
+
+- **Storage:** entries in plain JSON at `~/.thenode/data.json`, each signed with the node's private key
+- **Verification:** `python main.py verify` checks all signatures
+- **Encryption at rest:** not yet — planned; v1 is signed, not encrypted
+- **Network:** no peer discovery or sharing yet — single node only
+- **External calls:** `ask` sends context to OpenRouter only when you run it with a key in `.env`
+- **Presence:** local only via `python main.py serve` on port 5050
+
+The philosophy describes the direction. This section describes what is built.

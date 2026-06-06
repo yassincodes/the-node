@@ -128,6 +128,7 @@ Concentration. Negation. Act. Carry.
 The node is the attempt to make that pattern **human-sized** — so the synthesis includes what people actually lived, not only what power concentrated or power flooded.
 
 Read the philosophy: [the-node.md](the-node.md)
+Read the science: [science.md](science.md)
 Read the technical decisions: [the-node-spec.md](the-node-spec.md)
 
 ---

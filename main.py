@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from node.core import activate, store, read, status, is_active
+from node.core import activate, store, read, status, is_active, verify_all
 from node.memory import search, summary
 from routing.router import route
 
@@ -39,6 +39,7 @@ The Node — commands:
   read                  Read your last 10 entries.
   search "keyword"      Search your stored entries.
   summary               What your node knows about you so far.
+  verify                Check signatures on all stored entries.
   status                Show your node status.
   ask "question"        Route a question through your node context.
                         Put your key in .env (in this folder).
@@ -100,6 +101,19 @@ def main():
 
     elif cmd == "status":
         status()
+
+    elif cmd == "verify":
+        if not is_active():
+            print("Node not active.")
+            return
+        valid, invalid = verify_all()
+        total = valid + invalid
+        if total == 0:
+            print("No entries to verify.")
+            return
+        print(f"\nVerified {valid}/{total} entries.")
+        if invalid:
+            print(f"WARNING: {invalid} entries failed verification.")
 
     elif cmd == "ask":
         if len(args) < 2:
