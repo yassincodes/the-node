@@ -23,7 +23,7 @@ A personal node. Local. Encrypted. Yours.
 ## Install
 
 ```bash
-git clone https://github.com/moyassin/the-node
+git clone https://github.com/yassincodes/the-node
 cd the-node
 pip install cryptography
 ```
