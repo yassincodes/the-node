@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Node</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .pulse {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #39ff14;
+      box-shadow: 0 0 12px #39ff14;
+      animation: pulse 2s infinite;
+      margin-bottom: 2rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .node-id {
+      font-size: 0.75rem;
+      color: #555;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: #39ff14;
+      letter-spacing: 0.1em;
+      margin-bottom: 3rem;
+    }
+
+    .label {
+      font-size: 0.65rem;
+      color: #333;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat {
+      font-size: 1.2rem;
+      color: #888;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .divider {
+      width: 1px;
+      height: 40px;
+      background: #222;
+      margin: 1rem auto 2rem;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 2rem;
+      font-size: 0.6rem;
+      color: #222;
+      letter-spacing: 0.2em;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pulse"></div>
+
+  <div class="node-id" id="nodeId">loading...</div>
+  <div class="status">NODE ACTIVE</div>
+
+  <div class="label">entries stored</div>
+  <div class="stat" id="entryCount">—</div>
+
+  <div class="divider"></div>
+
+  <div class="label">last entry</div>
+  <div class="stat" id="lastEntry">—</div>
+
+  <div class="footer">
+    <a href="https://github.com/moyassin/the-node" target="_blank">the-node — open source</a>
+  </div>
+
+  <script>
+    // In production this reads from the local node API running on localhost
+    // For now it shows static presence — node is here, node is active
+
+    async function loadNodeStatus() {
+      try {
+        const res = await fetch('http://localhost:5050/status');
+        const data = await res.json();
+        document.getElementById('nodeId').textContent = 'NODE — ' + data.node_id;
+        document.getElementById('entryCount').textContent = data.entries;
+        document.getElementById('lastEntry').textContent = data.last_entry || 'none yet';
+      } catch {
+        // Node API not running — show presence only
+        document.getElementById('nodeId').textContent = 'NODE — PRESENT';
+        document.getElementById('entryCount').textContent = '—';
+        document.getElementById('lastEntry').textContent = '—';
+      }
+    }
+
+    loadNodeStatus();
+  </script>
+
+</body>
+</html>
