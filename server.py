@@ -1,13 +1,12 @@
 """
-The Node — Local Presence Server
-Runs on localhost:5050.
+The Node — Local Server
+Runs on 0.0.0.0:5050 — reachable on your local network.
 
-It answers one question: is this node here?
+GET  /status  — presence only: {active, node_id}
+POST /share   — receive one entry from another node (explicit, verified)
 
-It serves presence, never content. No entries, no previews, no counts —
-nothing about what the node stores. Existence and the node ID are already
-public (the ID is broadcast by discovery). Your stored life is not, and
-this server never touches it.
+Your stored entries are never listed here. Share only accepts what
+another node sends, and only while you run serve.
 """
 
 import json
@@ -17,6 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from node.core import load_node_id, is_active
+from node.share import receive
+
+PORT = 5050
 
 
 class NodeHandler(BaseHTTPRequestHandler):
@@ -28,31 +30,49 @@ class NodeHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
 
+    def do_POST(self):
+        if self.path == "/share":
+            self.handle_share()
+        else:
+            self.send_response(404)
+            self.end_headers()
+
     def handle_status(self):
         if not is_active():
             self.respond({"active": False})
             return
-        # Presence only: that the node exists, and its public ID. Nothing else.
         self.respond({"active": True, "node_id": load_node_id()})
 
-    def respond(self, data):
+    def handle_share(self):
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length) if length else b""
+        try:
+            package = json.loads(body)
+        except json.JSONDecodeError:
+            self.respond({"ok": False, "error": "invalid json"}, status=400)
+            return
+        result = receive(package)
+        code = 200 if result.get("ok") else 400
+        self.respond(result, status=code)
+
+    def respond(self, data, status=200):
         body = json.dumps(data).encode()
-        self.send_response(200)
+        self.send_response(status)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-Length", len(body))
         self.end_headers()
         self.wfile.write(body)
 
     def log_message(self, format, *args):
-        pass  # Silent — no noise in terminal
+        pass
 
 
 def run():
-    server = HTTPServer(("localhost", 5050), NodeHandler)
-    print("Node presence server running at http://localhost:5050")
-    print("Open presence/index.html in your browser.")
-    print("Serves presence only — never your stored entries.")
+    server = HTTPServer(("0.0.0.0", PORT), NodeHandler)
+    print(f"Node listening on port {PORT} (local network)")
+    print("  GET  /status  — presence")
+    print("  POST /share   — receive a shared entry")
+    print("Open presence/index.html for the presence page.")
     print("Press Ctrl+C to stop.\n")
     try:
         server.serve_forever()

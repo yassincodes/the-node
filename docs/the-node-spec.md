@@ -124,7 +124,7 @@ What the code does today — honestly:
 - **Storage:** entries in plain JSON at `~/.thenode/data.json`, each signed with the node's private key
 - **Verification:** `python main.py verify` checks all signatures
 - **Encryption at rest:** not yet — planned; v1 is signed, not encrypted
-- **Network:** local-network peer discovery works (`discover`, mDNS, presence only). It reveals the node ID and the device's local address, nothing else. Presence is unauthenticated — a node could announce any ID until keys are exchanged and signatures checked (immune system not built). No sharing yet, no internet-wide discovery
+- **Network:** local discovery (`discover`), controlled share (`share` + `serve`). Share verifies signature and node ID. No internet-wide discovery yet
 - **External calls:** none. `ask` uses a local model (Ollama). If none is running, the node stays silent and sends nothing anywhere
 - **Presence:** local only via `python main.py serve` on port 5050
 

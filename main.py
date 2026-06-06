@@ -25,6 +25,8 @@ The Node — commands:
   verify                Check signatures on all stored entries.
   discover [seconds]    Announce presence and see other nodes on your
                         local network. Presence only — nothing shared.
+  share <id> <host>     Send one entry to another node. Their serve
+                        must be running. You choose both sides.
   status                Show your node status.
   ask "question"        Answer a question from your node, using a model
                         running on your own machine. Nothing leaves the device.
@@ -110,6 +112,15 @@ def main():
                 print("Usage: python main.py discover [seconds]")
                 return
         discover(seconds)
+
+    elif cmd == "share":
+        if len(args) < 3:
+            print("Usage: python main.py share <entry-id> <host>")
+            print("Example: python main.py share a1b2c3d4 192.168.1.15")
+            print("The other node must be running: python main.py serve")
+            return
+        from node.share import send
+        print(send(args[1], args[2]))
 
     elif cmd == "ask":
         if len(args) < 2:

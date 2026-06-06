@@ -90,6 +90,71 @@ def load_public_key():
         return serialization.load_pem_public_key(f.read())
 
 
+def public_key_pem() -> str:
+    return PUB_FILE.read_text()
+
+
+def node_id_from_public_key(public_key) -> str:
+    pub_bytes = public_key.public_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    return hashlib.sha256(pub_bytes).hexdigest()[:16]
+
+
+def get_entry(entry_id: str):
+    """Find one entry by its id."""
+    for entry in read(limit=9999):
+        if entry["id"] == entry_id:
+            return entry
+    return None
+
+
+def verify_entry(entry: dict, public_key) -> bool:
+    """Verify an entry's signature against a given public key."""
+    signature = bytes.fromhex(entry["signature"])
+    public_key.verify(
+        signature,
+        entry["content"].encode(),
+        padding.PKCS1v15(),
+        hashes.SHA256(),
+    )
+    return True
+
+
+def store_received(entry: dict, origin_node_id: str, origin_public_key: str):
+    """
+    Store an entry received from another node.
+    Original signature and content are kept. Origin is recorded.
+    """
+    if not is_active():
+        return None
+
+    received = {
+        "id": entry["id"],
+        "timestamp": entry["timestamp"],
+        "source": f"node:{origin_node_id}",
+        "content": entry["content"],
+        "signature": entry["signature"],
+        "origin_public_key": origin_public_key,
+        "received_at": datetime.utcnow().isoformat(),
+    }
+
+    with open(DATA_FILE, "r") as f:
+        data = json.load(f)
+
+    for existing in data["entries"]:
+        if existing["id"] == received["id"] and existing.get("source") == received["source"]:
+            return None  # already have this
+
+    data["entries"].append(received)
+
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+    return received["id"]
+
+
 def store(text: str, source: str = "computer"):
     """
     Store a piece of natural language input.
@@ -130,16 +195,12 @@ def store(text: str, source: str = "computer"):
 
 
 def verify(entry: dict) -> bool:
-    """Verify an entry's signature against the node's public key."""
-    public_key = load_public_key()
-    signature = bytes.fromhex(entry["signature"])
-    public_key.verify(
-        signature,
-        entry["content"].encode(),
-        padding.PKCS1v15(),
-        hashes.SHA256(),
-    )
-    return True
+    """Verify an entry — local entries use your key, shared entries use origin key."""
+    if entry.get("origin_public_key"):
+        pub = serialization.load_pem_public_key(entry["origin_public_key"].encode())
+    else:
+        pub = load_public_key()
+    return verify_entry(entry, pub)
 
 
 def verify_all() -> tuple[int, int]:

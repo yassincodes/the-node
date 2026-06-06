@@ -127,17 +127,34 @@ What is not built yet: proof that a discovered node holds the matching private k
 
 ## Layer 6 — Connection
 
-**Status: not built**
-
-This is rung 3. When it exists:
+**File:** `node/share.py`  
+**Endpoint:** `POST /share` on the node running `serve`
 
 ```bash
-python main.py share <entry-id> <node-id>
+# On the receiving node (leave this running):
+python main.py serve
+
+# On your node — send one entry to their IP (from discover):
+python main.py share <entry-id> <host>
 ```
 
-One entry. One node. Your explicit choice. Signed. Attributed to origin.
+What happens:
+- You pick one entry and one destination. Nothing else moves.
+- The package contains: the entry, your node ID, your public key
+- The receiver verifies the signature matches the public key
+- The receiver verifies the node ID matches the public key
+- If either fails, the entry is rejected
+- If both pass, it is stored as `source: node:<your-id>`
 
-The network grows here — person to person. Not built yet.
+What leaves your device: **one entry you chose**, to **one host you named**
+
+What does not happen: auto-sync, bulk export, sharing without your command
+
+```bash
+python main.py verify
+```
+
+Works on received entries too — using the origin public key stored with them.
 
 ---
 
@@ -154,10 +171,10 @@ Voice (ask, local model)     ← layer 4: routing/router.py → localhost only
   ↓
 Presence (discover, serve)   ← layer 5: node/discovery.py + server.py
   ↓
-Connection (share)           ← layer 6: not built yet
+Connection (share)           ← layer 6: node/share.py → POST /share
 ```
 
-Each layer only talks to the layer below it. Nothing skips up to a server. Nothing routes around you.
+Each layer only talks to the layer below it, except share — which only fires when **you** run it, to **one** host, with **one** entry.
 
 ---
 
@@ -166,7 +183,7 @@ Each layer only talks to the layer below it. Nothing skips up to a server. Nothi
 - Not a cloud product — there is no cloud
 - Not an API you call — you run it
 - Not alignment written on top — the structure is the alignment
-- Not finished — layer 6 is open, encryption at rest is open, authentication of presence is open
+- Not finished — encryption at rest is open; presence discovery is still unauthenticated until share proves a key
 
 ---
 
@@ -179,7 +196,7 @@ Each layer only talks to the layer below it. Nothing skips up to a server. Nothi
 | 4 | `routing/router.py` | `ask` |
 | 5 | `node/discovery.py` | `discover` |
 | 5 | `server.py` | `serve` |
-| 6 | — | `share` (coming) |
+| 6 | `node/share.py` | `share` |
 
 Open any file. Read it. That is what the node does.
 

@@ -228,6 +228,9 @@ python main.py verify
 # See other nodes on your local network (presence only, nothing shared)
 python main.py discover
 
+# Share one entry with another node (their serve must be running)
+python main.py share abc12345 192.168.1.15
+
 # Check status
 python main.py status
 
@@ -259,7 +262,8 @@ the-node/
 ├── node/
 │   ├── core.py          # Activation, storage, signing
 │   ├── memory.py        # Search, context, summary
-│   └── discovery.py     # Local-network peer presence (mDNS)
+│   ├── discovery.py     # Local-network peer presence (mDNS)
+│   └── share.py         # Send one entry to one node
 ├── routing/
 │   └── router.py        # Answers locally via Ollama (no external calls)
 ├── presence/

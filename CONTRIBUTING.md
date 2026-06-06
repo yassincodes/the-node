@@ -12,6 +12,7 @@ This is an open source project. If you believe in the idea, here is what needs t
 - Answering questions locally via `ask` (Ollama, on-device — no external calls)
 - A local presence page via `serve`
 - Local-network peer discovery via `discover` (mDNS, presence only)
+- Controlled share via `share` (one entry, one node, verified signature)
 
 ---
 
@@ -43,15 +44,12 @@ The goal stays the same: minimal infrastructure. Ideally no central server at al
 
 ### 2. Controlled share protocol
 
-When two nodes find each other, the user decides what to share.
+**Built.** One entry, one host, your explicit command (`python main.py share <entry-id> <host>`). The receiver must run `serve`. Signature and node ID are verified before storage. See `node/share.py`.
 
-What it should do:
-- User selects specific entries to share with another node
-- Those entries get packaged and sent directly
-- The receiving node stores them, attributed to their origin node ID
-- Nothing transfers without explicit user action
-
-This is the core of how the network grows — person to person, consciously.
+What could still improve:
+- Share by node ID (look up IP from discover cache) instead of requiring IP
+- End-to-end encryption of the share payload in transit
+- Batch share with explicit confirmation per entry
 
 ---
 
