@@ -2,8 +2,6 @@
 
 *A thought. Not a theory. Not a product. A direction.*
 
-**→ [Start here](#start-here)** — run your node in three steps. No Python knowledge needed.
-
 ---
 
 ## Where this comes from
@@ -167,8 +165,6 @@ The rest will come.
 *Written June 6, 2026.*
 *This thought belongs to whoever needs it.*
 
----
-
 ## What it does
 
 - Activates with a local cryptographic keypair — private key never leaves your device
@@ -268,7 +264,7 @@ ollama pull llama3.2
 # Check status
 ./thenode status
 
-# Local presence server (then open presence/index.html)
+# Local presence server (open http://localhost:5050)
 ./thenode serve
 
 # Ask a question — answered locally from your stored context.
@@ -280,7 +276,7 @@ ollama pull llama3.2
 
 ## Presence page
 
-Run `./thenode serve`, then open `presence/index.html` in your browser. It shows your node is active on this machine. Nothing else. No network discovery yet.
+Run `./thenode serve`, then open **http://localhost:5050** in your browser. Green pulse, node ID, record depth. No entries shown.
 
 ---
 

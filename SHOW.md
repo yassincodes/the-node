@@ -60,7 +60,7 @@ Terminal 1:
 ./thenode serve
 ```
 
-Open `presence/index.html` in a browser. Green pulse. Node ID. Record depth. No entries shown.
+Open **http://localhost:5050** in a browser. Green pulse. Node ID. Record depth. No entries shown.
 
 ---
 

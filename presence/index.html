@@ -109,7 +109,7 @@
 
     async function loadPresence() {
       try {
-        const res = await fetch('http://localhost:5050/status');
+        const res = await fetch('/status');
         const data = await res.json();
         document.getElementById('nodeId').textContent =
           data.active ? 'NODE — ' + data.node_id : 'NODE — INACTIVE';

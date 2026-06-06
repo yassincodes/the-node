@@ -105,7 +105,7 @@ Two ways to say *I exist*:
 
 ```bash
 ./thenode discover      # other nodes on your Wi-Fi see you
-./thenode serve         # presence page on localhost:5050
+./thenode serve         # presence page at http://localhost:5050
 ```
 
 What `discover` announces (mDNS, no server):

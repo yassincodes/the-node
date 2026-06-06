@@ -2,8 +2,9 @@
 The Node — Local Server
 Runs on 0.0.0.0:5050 — reachable on your local network.
 
-GET  /status  — presence + record depth (no entry content)
-POST /share   — receive one entry from another node (explicit, verified)
+GET  /          — presence page
+GET  /status    — presence + record depth (no entry content)
+POST /share     — receive one entry from another node (explicit, verified)
 
 Your stored entries are never listed here. Share only accepts what
 another node sends, and only while you run serve.
@@ -20,6 +21,8 @@ from node.memory import stake
 from node.share import receive
 
 PORT = 5050
+ROOT = os.path.dirname(os.path.abspath(__file__))
+PRESENCE_PAGE = os.path.join(ROOT, "presence", "index.html")
 
 
 class NodeHandler(BaseHTTPRequestHandler):
@@ -27,9 +30,25 @@ class NodeHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/status":
             self.handle_status()
+        elif self.path in ("/", "/index.html"):
+            self.handle_presence()
         else:
             self.send_response(404)
             self.end_headers()
+
+    def handle_presence(self):
+        try:
+            with open(PRESENCE_PAGE, "rb") as f:
+                body = f.read()
+        except FileNotFoundError:
+            self.send_response(404)
+            self.end_headers()
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", len(body))
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_POST(self):
         if self.path == "/share":
@@ -75,9 +94,9 @@ class NodeHandler(BaseHTTPRequestHandler):
 def run():
     server = HTTPServer(("0.0.0.0", PORT), NodeHandler)
     print(f"Node listening on port {PORT} (local network)")
-    print("  GET  /status  — presence")
-    print("  POST /share   — receive a shared entry")
-    print("Open presence/index.html for the presence page.")
+    print(f"  http://localhost:{PORT}/       — presence page")
+    print(f"  http://localhost:{PORT}/status — JSON")
+    print("  POST /share                    — receive a shared entry")
     print("Press Ctrl+C to stop.\n")
     try:
         server.serve_forever()
