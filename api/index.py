@@ -1,11 +1,16 @@
 """
 Presence protocol — Vercel entrypoint.
-GET  /status   — protocol beacon
-POST /presence — node announces depth (ack only in v1)
+GET  /           — presence page
+GET  /status     — protocol beacon
+POST /presence   — node announces depth (ack only in v1)
 """
 
 import json
+import os
 from http.server import BaseHTTPRequestHandler
+
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_HTML_PATH = os.path.join(_ROOT, "public", "index.html")
 
 
 def _json(handler, data, status=200):
@@ -18,7 +23,27 @@ def _json(handler, data, status=200):
     handler.wfile.write(body)
 
 
+def _status_payload():
+    return {
+        "protocol": "thenode-presence",
+        "version": 1,
+        "active": True,
+        "message": "A light. Nodes announce depth, never content.",
+    }
+
+
+def _html_body():
+    try:
+        with open(_HTML_PATH, "rb") as f:
+            return f.read()
+    except FileNotFoundError:
+        return b"<html><body><p>thenode-presence</p><a href='/status'>/status</a></body></html>"
+
+
 class handler(BaseHTTPRequestHandler):
+    def _path(self):
+        return self.path.split("?")[0].rstrip("/") or "/"
+
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -26,15 +51,38 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
-    def do_GET(self):
-        path = self.path.split("?")[0].rstrip("/") or "/"
+    def do_HEAD(self):
+        path = self._path()
         if path.endswith("status"):
-            _json(self, {
-                "protocol": "thenode-presence",
-                "version": 1,
-                "active": True,
-                "message": "A light. Nodes announce depth, never content.",
-            })
+            body = json.dumps(_status_payload()).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            return
+        if path in ("/", "/api/index", "/index.html"):
+            body = _html_body()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            return
+        self.send_response(404)
+        self.end_headers()
+
+    def do_GET(self):
+        path = self._path()
+        if path.endswith("status"):
+            _json(self, _status_payload())
+            return
+        if path in ("/", "/api/index", "/index.html"):
+            body = _html_body()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
             return
         self.send_response(404)
         self.end_headers()
