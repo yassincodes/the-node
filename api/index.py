@@ -1,16 +1,14 @@
 """
-Presence protocol — announce endpoint.
-POST /presence  (via rewrite from /api/presence)
-
-A node sends: node_id, record (entries, span_days, verified).
-No entry content. Acknowledged; not persisted in v1 (registry is open).
+Presence protocol — Vercel entrypoint.
+GET  /status   — protocol beacon
+POST /presence — node announces depth (ack only in v1)
 """
 
 import json
 from http.server import BaseHTTPRequestHandler
 
 
-def _respond(handler, data, status=200):
+def _json(handler, data, status=200):
     body = json.dumps(data).encode()
     handler.send_response(status)
     handler.send_header("Content-Type", "application/json")
@@ -24,27 +22,45 @@ class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
+    def do_GET(self):
+        path = self.path.split("?")[0].rstrip("/") or "/"
+        if path.endswith("status"):
+            _json(self, {
+                "protocol": "thenode-presence",
+                "version": 1,
+                "active": True,
+                "message": "A light. Nodes announce depth, never content.",
+            })
+            return
+        self.send_response(404)
+        self.end_headers()
+
     def do_POST(self):
+        path = self.path.split("?")[0].rstrip("/") or "/"
+        if not path.endswith("presence"):
+            self.send_response(404)
+            self.end_headers()
+            return
+
         length = int(self.headers.get("Content-Length", 0))
         raw = self.rfile.read(length) if length else b""
         try:
             data = json.loads(raw) if raw else {}
         except json.JSONDecodeError:
-            _respond(self, {"ok": False, "error": "invalid json"}, 400)
+            _json(self, {"ok": False, "error": "invalid json"}, 400)
             return
 
         node_id = data.get("node_id")
         record = data.get("record")
-
         if not node_id or not isinstance(record, dict):
-            _respond(self, {"ok": False, "error": "need node_id and record"}, 400)
+            _json(self, {"ok": False, "error": "need node_id and record"}, 400)
             return
 
-        _respond(self, {
+        _json(self, {
             "ok": True,
             "protocol": "thenode-presence",
             "version": 1,

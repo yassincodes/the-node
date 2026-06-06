@@ -9,5 +9,5 @@ thenode
 docs/
 SHOW.md
 CONTRIBUTING.md
-requirements.txt
+/requirements.txt
 presence/
