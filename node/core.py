@@ -19,12 +19,21 @@ PUB_FILE = NODE_DIR / "public.pem"
 ID_FILE = NODE_DIR / "node_id.txt"
 
 
+def _ensure_data_file():
+    """Create an empty store if keys exist but data.json does not."""
+    NODE_DIR.mkdir(exist_ok=True)
+    if not DATA_FILE.exists():
+        with open(DATA_FILE, "w") as f:
+            json.dump({"entries": []}, f)
+
+
 def activate():
     """
     Activate the node. Generates a local keypair.
     Private key never leaves this device.
     """
     if is_active():
+        _ensure_data_file()
         print("Node already active.")
         return load_node_id()
 
@@ -162,9 +171,10 @@ def store(text: str, source: str = "computer"):
     source: 'computer' (conscious input)
     """
     if not is_active():
-        print("Node not active. Run activate() first.")
+        print("Node not active. Run ./setup.sh first.")
         return
 
+    _ensure_data_file()
     private_key = load_private_key()
 
     # Sign the content
@@ -229,16 +239,19 @@ def read(limit: int = 10):
 def status():
     """Show the current state of your node."""
     if not is_active():
-        print("Node not active.")
+        print("Node not active. Run ./setup.sh first.")
         return
 
+    from node.memory import stake
+
     node_id = load_node_id()
-    entries = read(limit=9999)
+    s = stake()
 
     print(f"""
 --- Node Status ---
 ID:      {node_id}
-Entries: {len(entries)}
+Record:  {s['entries']} entries · {s['span_days']} days · {s['verified']}/{s['entries'] or 0} verified
+Since:   {s['since'] or '—'}
 Storage: {DATA_FILE}
 Active:  True
 """)

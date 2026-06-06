@@ -2,6 +2,8 @@
 
 *A thought. Not a theory. Not a product. A direction.*
 
+**→ [Start here](#start-here)** — run your node in three steps. No Python knowledge needed.
+
 ---
 
 ## Where this comes from
@@ -189,12 +191,47 @@ Discovery reveals only your node ID (a truncated fingerprint of your public key)
 
 ---
 
-## Install
+## Start here
+
+Three steps. No Python knowledge needed.
+
+**1.** Download or clone this folder, then open Terminal and go into it:
+
+```bash
+cd the-node
+```
+
+**2.** Run setup once (if you downloaded a zip and get "permission denied", run `chmod +x setup.sh thenode` first):
+
+```bash
+./setup.sh
+```
+
+**3.** Use your node:
+
+```bash
+./thenode store "something from your day"
+./thenode read
+./thenode status
+```
+
+That's it. `./thenode` is the only command you need day to day.
+
+**Showing someone?** See [SHOW.md](SHOW.md) — 5-minute demo script.
+
+Want `./thenode ask` to answer questions? Install [Ollama](https://ollama.ai), then run `ollama pull llama3.2` once. Still local — nothing leaves your machine.
+
+---
+
+## Install (manual)
+
+If you prefer not to use the setup script:
 
 ```bash
 git clone https://github.com/yassincodes/the-node
 cd the-node
 pip install -r requirements.txt
+python main.py activate
 ```
 
 Optional — only if you want `ask` to answer: install a local model so the node can think without sending anything out.
@@ -209,45 +246,41 @@ ollama pull llama3.2
 ## Usage
 
 ```bash
-# Activate your node
-python main.py activate
-
 # Store something
-python main.py store "today I worked on the routing system"
+./thenode store "today I worked on the routing system"
 
 # Read your entries
-python main.py read
+./thenode read
 
 # Search and summary
-python main.py search "routing"
-python main.py summary
+./thenode search "routing"
+./thenode summary
 
 # Verify all entry signatures
-python main.py verify
+./thenode verify
 
 # See other nodes on your local network (presence only, nothing shared)
-python main.py discover
+./thenode discover
 
 # Share one entry with another node (their serve must be running)
-python main.py share abc12345 192.168.1.15
+./thenode share abc12345 192.168.1.15
 
 # Check status
-python main.py status
+./thenode status
 
 # Local presence server (then open presence/index.html)
-python main.py serve
+./thenode serve
 
 # Ask a question — answered locally from your stored context.
 # Needs a local model (Ollama). Nothing leaves your machine.
-#   install: https://ollama.ai   then: ollama pull llama3.2
-python main.py ask "what have I been working on?"
+./thenode ask "what have I been working on?"
 ```
 
 ---
 
 ## Presence page
 
-Run `python main.py serve`, then open `presence/index.html` in your browser. It shows your node is active on this machine. Nothing else. No network discovery yet.
+Run `./thenode serve`, then open `presence/index.html` in your browser. It shows your node is active on this machine. Nothing else. No network discovery yet.
 
 ---
 
@@ -255,6 +288,9 @@ Run `python main.py serve`, then open `presence/index.html` in your browser. It 
 
 ```
 the-node/
+├── thenode              # Run this — wrapper for all commands
+├── setup.sh             # One-time setup (install + activate)
+├── SHOW.md              # 5-minute demo for showing someone
 ├── main.py              # CLI entry point
 ├── server.py            # Local presence server
 ├── CONTRIBUTING.md      # What needs to be built

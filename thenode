@@ -1,0 +1,14 @@
+#!/bin/bash
+# The Node — run everything through this. No python commands to remember.
+cd "$(dirname "$0")"
+
+if [ ! -d ".venv" ]; then
+  echo ""
+  echo "  First time here. Run this once:"
+  echo ""
+  echo "    ./setup.sh"
+  echo ""
+  exit 1
+fi
+
+exec .venv/bin/python main.py "$@"

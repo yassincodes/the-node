@@ -13,7 +13,7 @@ This is not a design doc. It is the node describing itself from the code that is
 Nothing is stored until you run:
 
 ```bash
-python main.py store "your words here"
+./thenode store "your words here"
 ```
 
 Nothing is shared automatically. Ever. The node does nothing on its own.
@@ -26,7 +26,7 @@ Nothing is shared automatically. Ever. The node does nothing on its own.
 **On disk:** `~/.thenode/private.pem`, `public.pem`, `node_id.txt`
 
 ```bash
-python main.py activate
+./thenode activate
 ```
 
 What happens:
@@ -37,7 +37,7 @@ What happens:
 What leaves the device: **nothing**
 
 ```bash
-python main.py verify
+./thenode verify
 ```
 
 Checks every stored entry against your public key. Pass or fail. No trust required — math.
@@ -50,10 +50,10 @@ Checks every stored entry against your public key. Pass or fail. No trust requir
 **On disk:** `~/.thenode/data.json`
 
 ```bash
-python main.py store "..."
-python main.py read
-python main.py search "keyword"
-python main.py summary
+./thenode store "..."
+./thenode read
+./thenode search "keyword"
+./thenode summary
 ```
 
 What happens:
@@ -73,7 +73,7 @@ What is not built yet: encryption at rest (entries are signed, not encrypted)
 **Calls:** `http://localhost:11434` only (Ollama, on your machine)
 
 ```bash
-python main.py ask "your question"
+./thenode ask "your question"
 ```
 
 What happens:
@@ -104,8 +104,8 @@ That is the whole routing layer. One URL. Localhost.
 Two ways to say *I exist*:
 
 ```bash
-python main.py discover      # other nodes on your Wi-Fi see you
-python main.py serve         # presence page on localhost:5050
+./thenode discover      # other nodes on your Wi-Fi see you
+./thenode serve         # presence page on localhost:5050
 ```
 
 What `discover` announces (mDNS, no server):
@@ -114,8 +114,10 @@ What `discover` announces (mDNS, no server):
 
 What `serve` returns at `/status`:
 ```json
-{"active": true, "node_id": "abc123..."}
+{"active": true, "node_id": "abc123...", "record": {"entries": 5, "span_days": 12, "since": "2026-01-01", "until": "2026-06-06", "verified": 5}}
 ```
+
+No entry text. Only depth — what the record shows.
 
 What neither reveals: your entries, your keys, your identity
 
@@ -132,10 +134,10 @@ What is not built yet: proof that a discovered node holds the matching private k
 
 ```bash
 # On the receiving node (leave this running):
-python main.py serve
+./thenode serve
 
 # On your node — send one entry to their IP (from discover):
-python main.py share <entry-id> <host>
+./thenode share <entry-id> <host>
 ```
 
 What happens:
@@ -151,7 +153,7 @@ What leaves your device: **one entry you chose**, to **one host you named**
 What does not happen: auto-sync, bulk export, sharing without your command
 
 ```bash
-python main.py verify
+./thenode verify
 ```
 
 Works on received entries too — using the origin public key stored with them.

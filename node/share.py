@@ -67,10 +67,10 @@ def receive(package: dict) -> dict:
 def send(entry_id: str, host: str) -> str:
     """
     Send one entry to another node at host.
-    The receiver must be running: python main.py serve
+    The receiver must be running: ./thenode serve
     """
     if not is_active():
-        return "Node not active. Run: python main.py activate"
+        return "Node not active. Run ./setup.sh first."
 
     entry = get_entry(entry_id)
     if not entry:
@@ -108,7 +108,7 @@ def send(entry_id: str, host: str) -> str:
     except urllib.error.URLError:
         return (
             f"Could not reach {host}.\n"
-            "Is the other node running?  python main.py serve"
+            "Is the other node running?  ./thenode serve"
         )
     except Exception as e:
         return f"Share failed: {e}"

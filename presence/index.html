@@ -97,6 +97,7 @@
 
   <div class="node-id" id="nodeId">loading...</div>
   <div class="status">NODE ACTIVE</div>
+  <div class="stat" id="record"></div>
 
   <div class="footer">
     <a href="https://github.com/yassincodes/the-node" target="_blank">the-node — open source</a>
@@ -112,6 +113,12 @@
         const data = await res.json();
         document.getElementById('nodeId').textContent =
           data.active ? 'NODE — ' + data.node_id : 'NODE — INACTIVE';
+        if (data.active && data.record) {
+          const r = data.record;
+          document.getElementById('record').textContent =
+            r.entries + ' entries · ' + r.span_days + ' days · ' +
+            r.verified + ' verified';
+        }
       } catch {
         document.getElementById('nodeId').textContent = 'NODE — PRESENT';
       }

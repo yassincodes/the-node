@@ -2,7 +2,7 @@
 The Node — Local Server
 Runs on 0.0.0.0:5050 — reachable on your local network.
 
-GET  /status  — presence only: {active, node_id}
+GET  /status  — presence + record depth (no entry content)
 POST /share   — receive one entry from another node (explicit, verified)
 
 Your stored entries are never listed here. Share only accepts what
@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from node.core import load_node_id, is_active
+from node.memory import stake
 from node.share import receive
 
 PORT = 5050
@@ -41,7 +42,11 @@ class NodeHandler(BaseHTTPRequestHandler):
         if not is_active():
             self.respond({"active": False})
             return
-        self.respond({"active": True, "node_id": load_node_id()})
+        self.respond({
+            "active": True,
+            "node_id": load_node_id(),
+            "record": stake(),
+        })
 
     def handle_share(self):
         length = int(self.headers.get("Content-Length", 0))

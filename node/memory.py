@@ -7,6 +7,7 @@ Simple keyword and recency based — no external dependencies.
 import json
 import os
 import sys
+from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from node.core import read, DATA_FILE
@@ -64,6 +65,38 @@ def build_context(query: str, recent_count: int = 5, search_count: int = 5) -> s
         lines.append(f"[{e['timestamp'][:10]}] {e['content']}")
 
     return "\n".join(lines)
+
+
+def stake() -> dict:
+    """
+    What the record shows — derived, not declared.
+    Time depth + count + verification. No score.
+    """
+    entries = read(limit=9999)
+    total = len(entries)
+    if total == 0:
+        return {
+            "entries": 0,
+            "span_days": 0,
+            "since": None,
+            "until": None,
+            "verified": 0,
+        }
+
+    from node.core import verify_all
+
+    verified, _invalid = verify_all()
+    first = datetime.fromisoformat(entries[0]["timestamp"])
+    last = datetime.fromisoformat(entries[-1]["timestamp"])
+    span_days = max(0, (last.date() - first.date()).days)
+
+    return {
+        "entries": total,
+        "span_days": span_days,
+        "since": entries[0]["timestamp"][:10],
+        "until": entries[-1]["timestamp"][:10],
+        "verified": verified,
+    }
 
 
 def summary() -> dict:

@@ -13,24 +13,47 @@ from node.memory import search, summary
 from routing.router import route
 
 
+def welcome():
+    if not is_active():
+        print("""
+  Your node is not set up yet.
+
+  Run once:
+
+    ./setup.sh
+
+  That installs everything and activates your node.
+  After that, use ./thenode for all commands.
+""")
+        return
+
+    status()
+    print("""
+  Try:
+
+    ./thenode store "something from your day"
+    ./thenode read
+    ./thenode ask "what do I know?"
+
+  More: ./thenode help
+""")
+
+
 def help():
     print("""
 The Node — commands:
 
-  activate              Activate your node. Generates your local keypair.
   store "your text"     Store something in your node.
   read                  Read your last 10 entries.
   search "keyword"      Search your stored entries.
   summary               What your node knows about you so far.
-  verify                Check signatures on all stored entries.
-  discover [seconds]    Announce presence and see other nodes on your
-                        local network. Presence only — nothing shared.
-  share <id> <host>     Send one entry to another node. Their serve
-                        must be running. You choose both sides.
+  ask "question"        Answer from your memory. Local model only.
   status                Show your node status.
-  ask "question"        Answer a question from your node, using a model
-                        running on your own machine. Nothing leaves the device.
-  serve                 Start local server for the presence page.
+  verify                Check signatures on all stored entries.
+  discover [seconds]    See other nodes on your local network.
+  share <id> <host>     Send one entry to another node.
+  serve                 Start local presence server.
+  activate              Regenerate keypair (rare — setup does this).
   help                  Show this.
 """)
 
@@ -39,7 +62,10 @@ def main():
     args = sys.argv[1:]
 
     if not args or args[0] == "help":
-        help()
+        if not args:
+            welcome()
+        else:
+            help()
         return
 
     cmd = args[0]
@@ -49,7 +75,7 @@ def main():
 
     elif cmd == "store":
         if len(args) < 2:
-            print('Usage: python main.py store "your text"')
+            print('Usage: ./thenode store "your text"')
             return
         store(" ".join(args[1:]))
 
@@ -64,7 +90,7 @@ def main():
 
     elif cmd == "search":
         if len(args) < 2:
-            print('Usage: python main.py search "keyword"')
+            print('Usage: ./thenode search "keyword"')
             return
         query = " ".join(args[1:])
         results = search(query)
@@ -91,7 +117,7 @@ def main():
 
     elif cmd == "verify":
         if not is_active():
-            print("Node not active.")
+            print("Node not active. Run ./setup.sh first.")
             return
         valid, invalid = verify_all()
         total = valid + invalid
@@ -109,22 +135,22 @@ def main():
             try:
                 seconds = int(args[1])
             except ValueError:
-                print("Usage: python main.py discover [seconds]")
+                print("Usage: ./thenode discover [seconds]")
                 return
         discover(seconds)
 
     elif cmd == "share":
         if len(args) < 3:
-            print("Usage: python main.py share <entry-id> <host>")
-            print("Example: python main.py share a1b2c3d4 192.168.1.15")
-            print("The other node must be running: python main.py serve")
+            print("Usage: ./thenode share <entry-id> <host>")
+            print("Example: ./thenode share a1b2c3d4 192.168.1.15")
+            print("The other node must be running: ./thenode serve")
             return
         from node.share import send
         print(send(args[1], args[2]))
 
     elif cmd == "ask":
         if len(args) < 2:
-            print('Usage: python main.py ask "your question"')
+            print('Usage: ./thenode ask "your question"')
             return
         query = " ".join(args[1:])
         print("\nThinking locally...\n")

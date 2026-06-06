@@ -134,7 +134,7 @@ def discover(seconds: int = 10):
     saying the same. Nothing else is exchanged.
     """
     if not is_active():
-        print("Node not active. Run: python main.py activate")
+        print("Node not active. Run ./setup.sh first.")
         return
 
     deps = _require_zeroconf()

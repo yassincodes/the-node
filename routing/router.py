@@ -42,7 +42,7 @@ def route(query: str, model: str = None) -> str:
     Nothing is sent off the device.
     """
     if not is_active():
-        return "Node not active. Run: python main.py activate"
+        return "Node not active. Run ./setup.sh first."
 
     model = model or _model()
     context = build_context(query)
