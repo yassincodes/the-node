@@ -12,23 +12,6 @@ from node.core import activate, store, read, status, is_active, verify_all
 from node.memory import search, summary
 from routing.router import route
 
-ENV_FILE = os.path.join(os.path.dirname(__file__), ".env")
-
-
-def load_api_key():
-    if os.path.exists(ENV_FILE):
-        with open(ENV_FILE) as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, _, value = line.partition("=")
-                if key.strip() == "OPENROUTER_API_KEY":
-                    value = value.strip().strip('"').strip("'")
-                    if value and value != "paste-your-key-here":
-                        return value
-    return os.environ.get("OPENROUTER_API_KEY")
-
 
 def help():
     print("""
@@ -43,8 +26,8 @@ The Node — commands:
   discover [seconds]    Announce presence and see other nodes on your
                         local network. Presence only — nothing shared.
   status                Show your node status.
-  ask "question"        Route a question through your node context.
-                        Put your key in .env (in this folder).
+  ask "question"        Answer a question from your node, using a model
+                        running on your own machine. Nothing leaves the device.
   serve                 Start local server for the presence page.
   help                  Show this.
 """)
@@ -132,13 +115,9 @@ def main():
         if len(args) < 2:
             print('Usage: python main.py ask "your question"')
             return
-        api_key = load_api_key()
-        if not api_key:
-            print(f"Add your OpenRouter key to: {ENV_FILE}")
-            return
         query = " ".join(args[1:])
-        print("\nRouting...\n")
-        answer = route(query, api_key)
+        print("\nThinking locally...\n")
+        answer = route(query)
         print(answer)
 
     elif cmd == "serve":

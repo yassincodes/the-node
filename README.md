@@ -172,7 +172,7 @@ The rest will come.
 - Activates with a local cryptographic keypair — private key never leaves your device
 - Stores natural language input locally in `~/.thenode/` — signed, verifiable
 - Keyword search, summary, and signature verification on your entries
-- Routes queries to external AI models via OpenRouter **only when you run `ask`**
+- Answers questions with `ask` using a model on your own machine — nothing leaves the device
 - Shows a presence page on localhost when you run `serve`
 - Finds other nodes on your local network with `discover` — presence only, no server
 
@@ -180,7 +180,7 @@ Discovery reveals only your node ID (a truncated fingerprint of your public key)
 
 ## What it does not do
 
-- Send your data anywhere automatically
+- Send your data anywhere — `ask` runs on a local model; if none is running, the node stays silent rather than route you out
 - Share anything without your explicit choice — discovery exchanges presence, never content
 - Connect to a central server — discovery is peer-to-peer (mDNS) on your local network
 - Reach nodes beyond your local network yet (no internet-wide discovery)
@@ -195,6 +195,13 @@ Discovery reveals only your node ID (a truncated fingerprint of your public key)
 git clone https://github.com/yassincodes/the-node
 cd the-node
 pip install -r requirements.txt
+```
+
+Optional — only if you want `ask` to answer: install a local model so the node can think without sending anything out.
+
+```bash
+# https://ollama.ai
+ollama pull llama3.2
 ```
 
 ---
@@ -227,8 +234,9 @@ python main.py status
 # Local presence server (then open presence/index.html)
 python main.py serve
 
-# Ask a question — routes through your stored context (via OpenRouter)
-# Open .env in this folder and paste your OpenRouter key there.
+# Ask a question — answered locally from your stored context.
+# Needs a local model (Ollama). Nothing leaves your machine.
+#   install: https://ollama.ai   then: ollama pull llama3.2
 python main.py ask "what have I been working on?"
 ```
 
@@ -253,7 +261,7 @@ the-node/
 │   ├── memory.py        # Search, context, summary
 │   └── discovery.py     # Local-network peer presence (mDNS)
 ├── routing/
-│   └── router.py        # Query routing via OpenRouter
+│   └── router.py        # Answers locally via Ollama (no external calls)
 ├── presence/
 │   └── index.html       # Presence page
 └── docs/

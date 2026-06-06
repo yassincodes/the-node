@@ -62,7 +62,7 @@ A pattern that cannot fail is not a description of nature. It is a religion. Her
 
 **3. Concentration captures the antithesis.** The clean story is cartel vs flood. The messy truth is that a state flooding open weights is also concentrating power, one layer down. If both "sides" are really concentration wearing different clothes, the node is not choosing between two masters — it is the only thing that is neither, and that makes it small and easy to ignore.
 
-**4. The node still feeds the model.** Today `ask` routes your context to an external model. The carrier resists absorption in storage but leaks in use. Until local inference closes that loop, the pattern is incomplete in practice, not just in theory.
+**4. Closed (was: the node feeds the model).** This was the live wound — `ask` once routed your context to an external model, so the carrier resisted absorption in storage but leaked in use. It no longer does: `ask` runs on a local model on your own machine, and if none is running the node stays silent rather than reach outside. The loop is closed in practice. The remaining honest caveat is smaller: whatever local model you run was itself trained by someone else, so the *tool* is inherited even though your *data* never leaves.
 
 These are not reasons to stop. They are the edges of the floor. You can stand on it. You cannot pretend it extends further than it does.
 

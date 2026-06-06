@@ -58,29 +58,23 @@ The controlled share is also how the network grows. Person to person. Trust exte
 
 ## The routing room
 
-The node has access to all available models — OpenAI, Anthropic, Mistral, Gemini, and whatever exists at the time of the call.
+The node answers from itself.
 
-Routing logic before the node knows the user:
-- Simple queries go to the lightweight local model on-device
-- Complex queries route to external models
-- The user pays per external call — energy for the system to run
+Queries go to a model running on the user's own machine. No external service. No API key. Nothing — not the question, not the stored context — leaves the device.
 
-Routing logic after the node knows the user:
-- The node has accumulated the user's documents, voice, notes, life
-- It trains on that data locally
-- It starts routing based on what it has learned about what this person needs and how they think
+If no local model is running, the node stays silent and says so. It does not quietly fall back to a corporate API. A node that can leak silently is not a node that speaks from itself, so the ability to leak is simply not there.
 
-The routing room is not fixed. It learns. It gets cheaper over time as the local model gets smarter about this specific person.
+As the node accumulates the user's life, the local model has more to draw on. It gets more useful over time without ever reaching outside.
 
 ---
 
 ## Payment model
 
-The user is the energy source.
+The user is the energy source — literally. The compute is their own machine.
 
-They pay per external model call. Small, transparent, per use. The lightweight local model handles everything it can for free. External calls happen only when necessary.
+There is nothing to pay because there is no external call. No per-use billing, no metered API, no company in the loop. The cost is the electricity already running the device the node lives on.
 
-Over time, as the node learns from the user's data, external calls become less frequent. The node becomes more self-sufficient. The cost decreases as the relationship deepens.
+This is not a discount. It is the absence of a middleman. The node runs on the hardware of the person carrying it, and answers from it.
 
 ---
 
@@ -131,7 +125,7 @@ What the code does today — honestly:
 - **Verification:** `python main.py verify` checks all signatures
 - **Encryption at rest:** not yet — planned; v1 is signed, not encrypted
 - **Network:** local-network peer discovery works (`discover`, mDNS, presence only). It reveals the node ID and the device's local address, nothing else. Presence is unauthenticated — a node could announce any ID until keys are exchanged and signatures checked (immune system not built). No sharing yet, no internet-wide discovery
-- **External calls:** `ask` sends context to OpenRouter only when you run it with a key in `.env`
+- **External calls:** none. `ask` uses a local model (Ollama). If none is running, the node stays silent and sends nothing anywhere
 - **Presence:** local only via `python main.py serve` on port 5050
 
 The philosophy describes the direction. This section describes what is built.

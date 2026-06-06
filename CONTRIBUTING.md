@@ -9,7 +9,7 @@ This is an open source project. If you believe in the idea, here is what needs t
 - Local node activation with keypair generation
 - Natural language storage in `~/.thenode/`, signed by private key
 - Keyword search, memory retrieval, and `verify` for signatures
-- Routing queries to OpenRouter **only when you run `ask`**
+- Answering questions locally via `ask` (Ollama, on-device — no external calls)
 - A local presence page via `serve`
 - Local-network peer discovery via `discover` (mDNS, presence only)
 
@@ -57,15 +57,14 @@ This is the core of how the network grows — person to person, consciously.
 
 ### 3. Local model integration
 
-Right now the node routes to external AI APIs. The goal is for it to work fully offline.
+**Done.** The node answers fully offline through Ollama (`routing/router.py`). No external APIs, no keys — if no local model is running, the node stays silent rather than route data out.
 
-What it should do:
-- Integrate with Ollama (ollama.ai) for local model inference
-- Route simple queries to the local model first
-- Only call external APIs when the local model isn't sufficient
-- User controls which models are available
+What could still improve it:
+- Let the user pick/manage models more easily (right now: `THE_NODE_MODEL`, default `llama3.2`)
+- Stream responses instead of waiting for the whole answer
+- Let the node fine-tune or build a local index on the user's own entries over time
 
-Suggested starting models: phi3, mistral 7B — both run on most laptops.
+Suggested models: llama3.2, phi3, mistral 7B — all run on most laptops.
 
 ---
 
