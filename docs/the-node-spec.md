@@ -135,3 +135,5 @@ What the code does today — honestly:
 - **Presence:** local only via `python main.py serve` on port 5050
 
 The philosophy describes the direction. This section describes what is built.
+
+For how the philosophy, history, and science fit into one move — and where that move can fail — read [pattern.md](pattern.md).

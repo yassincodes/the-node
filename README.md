@@ -249,9 +249,10 @@ the-node/
 │   └── index.html       # Presence page
 └── docs/
     ├── the-node.md      # The philosophy
-    ├── the-node-spec.md # Technical decisions
     ├── history.md       # Hegel, collision, the node as act
-    └── science.md       # Evolution, society, the mechanism
+    ├── science.md       # Evolution, society, the mechanism
+    ├── pattern.md       # The weld: act, carrier, failure modes
+    └── the-node-spec.md # Technical decisions
 ```
 
 ---
@@ -261,6 +262,7 @@ the-node/
 - [docs/the-node.md](docs/the-node.md) — the philosophy
 - [docs/history.md](docs/history.md) — Hegel, collision, the node as act
 - [docs/science.md](docs/science.md) — evolution, society, the mechanism
+- [docs/pattern.md](docs/pattern.md) — the weld: act becomes carrier, where the pattern fails, what stays open
 - [docs/the-node-spec.md](docs/the-node-spec.md) — technical decisions
 - [CONTRIBUTING.md](CONTRIBUTING.md) — what to build next
 

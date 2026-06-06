@@ -129,6 +129,7 @@ The node is the attempt to make that pattern **human-sized** — so the synthesi
 
 Read the philosophy: [the-node.md](the-node.md)
 Read the science: [science.md](science.md)
+Read the pattern: [pattern.md](pattern.md)
 Read the technical decisions: [the-node-spec.md](the-node-spec.md)
 
 ---

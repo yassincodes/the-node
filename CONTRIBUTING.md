@@ -19,6 +19,7 @@ This is an open source project. If you believe in the idea, here is what needs t
 - [docs/the-node.md](docs/the-node.md) — the philosophy
 - [docs/history.md](docs/history.md) — Hegel, collision, the node as act
 - [docs/science.md](docs/science.md) — evolution, society, the mechanism
+- [docs/pattern.md](docs/pattern.md) — the weld and the failure modes
 - [docs/the-node-spec.md](docs/the-node-spec.md) — technical decisions
 
 ---
@@ -79,6 +80,33 @@ What it should do:
 - Connect to Omi SDK
 - Pipe transcriptions directly into the node as entries
 - Mark entries as source: "omi" vs source: "computer"
+
+---
+
+### 5. The immune system
+
+The hardest and most important one. The science doc names it directly: a network that grows without growing its defenses grows toward collapse. Honest volume does not automatically beat dishonest volume — parasites can win.
+
+What it should do:
+- Verify signatures on every received entry, not just local ones
+- Make faking expensive: proof-of-origin that a lie cannot cheaply produce
+- Keep attribution intact end to end, so a corrupt entry traces back to its source
+- Stay decentralized — no central authority deciding what is "true," only verifiable origin and the user's own judgment
+
+This is co-evolution: the immune response has to grow at least as fast as the network. Start small. `verify` already exists for local entries. Extend it outward.
+
+---
+
+### 6. Encryption at rest
+
+Right now entries are signed but stored as plain JSON in `~/.thenode/`. The philosophy says "encrypted." The code does not do that yet.
+
+What it should do:
+- Encrypt `data.json` at rest with a key derived from a user passphrase
+- Keep the private key protected, not stored in plaintext
+- Never weaken the signing or verification that already works
+
+Close the gap between what the philosophy claims and what the disk actually holds.
 
 ---
 
