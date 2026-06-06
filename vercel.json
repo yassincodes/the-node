@@ -1,10 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/**/*.py": {
-      "excludeFiles": "{node/**,routing/**,main.py,server.py,docs/**,presence/**,setup.sh,thenode,.venv/**,**/__pycache__/**}"
-    }
-  },
   "rewrites": [
     { "source": "/status", "destination": "/api/status" },
     { "source": "/presence", "destination": "/api/presence" }
