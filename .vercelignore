@@ -1,0 +1,13 @@
+# Local node runtime — not deployed to Vercel
+main.py
+server.py
+node/
+routing/
+setup.sh
+thenode
+.venv/
+docs/
+SHOW.md
+CONTRIBUTING.md
+requirements.txt
+presence/
