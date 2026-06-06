@@ -3,8 +3,21 @@ The Node — Discovery
 Peer discovery on the local network. Presence only.
 
 A node announces it exists. Other nodes on the same network hear it.
-No content is exchanged. No central server. No data leaves the device
-except one thing: "a node with this public ID exists here."
+No content is exchanged. No central server.
+
+What is revealed by being discoverable:
+  - the node ID (itself a truncated fingerprint of the public key)
+  - the device's local network address (unavoidable — you cannot be
+    found without an address)
+
+What is NOT revealed: any stored entry, the private key, the full public
+key, or the user's identity.
+
+Honesty caveat: presence at this stage is UNAUTHENTICATED. A node could
+announce any ID it likes. There is no proof here that an announcer
+actually holds the matching private key — that proof only happens later,
+when keys are exchanged and signatures are checked (the immune system,
+not yet built). Treat a discovered node as "a light", not as "verified".
 
 Like a light in the dark. You know someone is there. You do not know
 who they are or what they carry.
@@ -17,8 +30,7 @@ The network itself carries the announcement.
 import socket
 import time
 
-from node.core import load_node_id, load_public_key, is_active
-from cryptography.hazmat.primitives import serialization
+from node.core import load_node_id, is_active
 
 SERVICE_TYPE = "_thenode._tcp.local."
 PRESENCE_PORT = 5050
@@ -45,27 +57,13 @@ def _local_ip() -> str:
         s.close()
 
 
-def _public_key_fingerprint() -> str:
-    """Short, shareable fingerprint of the public key. Not the key itself."""
-    try:
-        pub = load_public_key()
-        der = pub.public_bytes(
-            encoding=serialization.Encoding.DER,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo,
-        )
-        import hashlib
-        return hashlib.sha256(der).hexdigest()[:16]
-    except Exception:
-        return ""
-
-
 def _build_service_info(ServiceInfo, node_id: str):
     ip = _local_ip()
-    # The only thing announced: node ID and a public-key fingerprint.
-    # No entries. No content. No identity. Just: this node exists.
+    # The only thing announced: the node ID (which is itself a truncated
+    # fingerprint of the public key) and a protocol version. No entries.
+    # No content. No private key. Just: a node with this ID exists here.
     properties = {
         "node_id": node_id,
-        "fingerprint": _public_key_fingerprint(),
         "v": "1",
     }
     name = f"{node_id}.{SERVICE_TYPE}"
@@ -109,14 +107,13 @@ class _PresenceListener:
         addr = socket.inet_ntoa(info.addresses[0]) if info.addresses else "?"
         record = {
             "node_id": node_id,
-            "fingerprint": props.get("fingerprint", ""),
             "address": addr,
         }
         first_time = node_id not in self.ever_seen
         self.present[node_id] = record
         self.ever_seen[node_id] = record
         if first_time:
-            print(f"  light  {node_id}  ({addr})  fp:{props.get('fingerprint', '')[:8]}")
+            print(f"  light  {node_id}  ({addr})")
 
     def update_service(self, zeroconf, type_, name):
         # Required by newer zeroconf versions. Re-resolve as an add.

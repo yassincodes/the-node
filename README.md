@@ -176,12 +176,15 @@ The rest will come.
 - Shows a presence page on localhost when you run `serve`
 - Finds other nodes on your local network with `discover` — presence only, no server
 
+Discovery reveals only your node ID (a truncated fingerprint of your public key) and your device's local network address — never your entries, keys, or identity.
+
 ## What it does not do
 
 - Send your data anywhere automatically
 - Share anything without your explicit choice — discovery exchanges presence, never content
 - Connect to a central server — discovery is peer-to-peer (mDNS) on your local network
 - Reach nodes beyond your local network yet (no internet-wide discovery)
+- Authenticate discovered nodes yet — presence is unverified; a node could announce any ID until keys are exchanged (the immune system is not built yet)
 - Encrypt data at rest yet (v1 — signed, not encrypted; see spec)
 
 ---

@@ -29,9 +29,10 @@ This is an open source project. If you believe in the idea, here is what needs t
 
 ### 1. Peer discovery
 
-**Local-network discovery is built** (`node/discovery.py`, `python main.py discover`). It uses mDNS — no server — so nodes on the same Wi-Fi see each other's presence. Nothing is shared but a node ID and a public-key fingerprint.
+**Local-network discovery is built** (`node/discovery.py`, `python main.py discover`). It uses mDNS — no server — so nodes on the same Wi-Fi see each other's presence. It reveals only a node ID (which is itself a fingerprint of the public key) and the device's local address. No content, no keys, no identity.
 
 What still needs building:
+- Authentication of presence — right now a node can announce any ID; nothing proves it holds the matching key until keys are exchanged (this is the immune system, item 5)
 - Discovery across different networks (a lightweight signaling server, or DHT)
 - WebRTC for peer-to-peer connections without a central server
 - NAT traversal so two nodes behind different routers can find each other
