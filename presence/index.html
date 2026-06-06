@@ -98,38 +98,26 @@
   <div class="node-id" id="nodeId">loading...</div>
   <div class="status">NODE ACTIVE</div>
 
-  <div class="label">entries stored</div>
-  <div class="stat" id="entryCount">—</div>
-
-  <div class="divider"></div>
-
-  <div class="label">last entry</div>
-  <div class="stat" id="lastEntry">—</div>
-
   <div class="footer">
     <a href="https://github.com/yassincodes/the-node" target="_blank">the-node — open source</a>
   </div>
 
   <script>
-    // In production this reads from the local node API running on localhost
-    // For now it shows static presence — node is here, node is active
+    // Presence only. Asks the local node one thing: are you here?
+    // It never reads, and the server never serves, what the node stores.
 
-    async function loadNodeStatus() {
+    async function loadPresence() {
       try {
         const res = await fetch('http://localhost:5050/status');
         const data = await res.json();
-        document.getElementById('nodeId').textContent = 'NODE — ' + data.node_id;
-        document.getElementById('entryCount').textContent = data.entries;
-        document.getElementById('lastEntry').textContent = data.last_entry || 'none yet';
+        document.getElementById('nodeId').textContent =
+          data.active ? 'NODE — ' + data.node_id : 'NODE — INACTIVE';
       } catch {
-        // Node API not running — show presence only
         document.getElementById('nodeId').textContent = 'NODE — PRESENT';
-        document.getElementById('entryCount').textContent = '—';
-        document.getElementById('lastEntry').textContent = '—';
       }
     }
 
-    loadNodeStatus();
+    loadPresence();
   </script>
 
 </body>

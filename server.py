@@ -1,7 +1,13 @@
 """
-The Node — Local Server
-Runs on localhost:5050
-Feeds the presence page with live data from your node.
+The Node — Local Presence Server
+Runs on localhost:5050.
+
+It answers one question: is this node here?
+
+It serves presence, never content. No entries, no previews, no counts —
+nothing about what the node stores. Existence and the node ID are already
+public (the ID is broadcast by discovery). Your stored life is not, and
+this server never touches it.
 """
 
 import json
@@ -10,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from node.core import load_node_id, read, is_active, DATA_FILE
+from node.core import load_node_id, is_active
 
 
 class NodeHandler(BaseHTTPRequestHandler):
@@ -18,8 +24,6 @@ class NodeHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/status":
             self.handle_status()
-        elif self.path == "/entries":
-            self.handle_entries()
         else:
             self.send_response(404)
             self.end_headers()
@@ -28,20 +32,8 @@ class NodeHandler(BaseHTTPRequestHandler):
         if not is_active():
             self.respond({"active": False})
             return
-
-        entries = read(limit=9999)
-        last = entries[-1]["content"][:60] + "..." if entries else None
-
-        self.respond({
-            "active": True,
-            "node_id": load_node_id(),
-            "entries": len(entries),
-            "last_entry": last
-        })
-
-    def handle_entries(self):
-        entries = read(limit=20)
-        self.respond({"entries": entries})
+        # Presence only: that the node exists, and its public ID. Nothing else.
+        self.respond({"active": True, "node_id": load_node_id()})
 
     def respond(self, data):
         body = json.dumps(data).encode()
@@ -58,8 +50,9 @@ class NodeHandler(BaseHTTPRequestHandler):
 
 def run():
     server = HTTPServer(("localhost", 5050), NodeHandler)
-    print("Node server running at http://localhost:5050")
+    print("Node presence server running at http://localhost:5050")
     print("Open presence/index.html in your browser.")
+    print("Serves presence only — never your stored entries.")
     print("Press Ctrl+C to stop.\n")
     try:
         server.serve_forever()
