@@ -234,7 +234,8 @@ the-node/
 │   └── index.html       # Presence page
 └── docs/
     ├── the-node.md      # The philosophy
-    └── the-node-spec.md # Technical decisions
+    ├── the-node-spec.md # Technical decisions
+    └── history.md       # Hegel, collision, the node as act
 ```
 
 ---
@@ -244,6 +245,8 @@ the-node/
 Every human gets a node. The node stores what they choose to feed it. It connects to others only when they choose. The data is signed, verifiable, and owned by the person carrying it.
 
 Read the full thought: [docs/the-node.md](docs/the-node.md)
+
+Read the history: [docs/history.md](docs/history.md)
 
 ---
 
