@@ -265,6 +265,7 @@ the-node/
 ├── presence/
 │   └── index.html       # Presence page
 └── docs/
+    ├── layers.md        # What exists — the node explains itself
     ├── the-node.md      # The philosophy
     ├── history.md       # Hegel, collision, the node as act
     ├── science.md       # Evolution, society, the mechanism
@@ -276,6 +277,7 @@ the-node/
 
 ## Docs
 
+- [docs/layers.md](docs/layers.md) — what exists, layer by layer, from the code
 - [docs/the-node.md](docs/the-node.md) — the philosophy
 - [docs/history.md](docs/history.md) — Hegel, collision, the node as act
 - [docs/science.md](docs/science.md) — evolution, society, the mechanism
