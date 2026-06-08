@@ -62,9 +62,7 @@
   }
 
   function macInstallLine() {
-    return (
-      "git clone " + REPO + " " + CLONE_DIR + " && bash " + CLONE_DIR + "/adopt"
-    );
+    return "git clone " + REPO + " " + CLONE_DIR + " && open " + CLONE_DIR;
   }
 
   function copy(text) {
@@ -77,7 +75,7 @@
   function macAdopt() {
     var line = macInstallLine();
     return copy(line).then(function () {
-      flashAdopt("Terminal → ⌘V → enter");
+      flashAdopt("Terminal → ⌘V → enter, then double-click The Node");
       return { ok: true, os: "mac", line: line };
     }).catch(function () {
       flashAdopt(line);
