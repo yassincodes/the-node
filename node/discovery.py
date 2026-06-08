@@ -13,11 +13,8 @@ What is revealed by being discoverable:
 What is NOT revealed: any stored entry, the private key, the full public
 key, or the user's identity.
 
-Honesty caveat: presence at this stage is UNAUTHENTICATED. A node could
-announce any ID it likes. There is no proof here that an announcer
-actually holds the matching private key — that proof only happens later,
-when keys are exchanged and signatures are checked (the immune system,
-not yet built). Treat a discovered node as "a light", not as "verified".
+Honesty caveat: mDNS carries node ID only. Proof of key is on
+GET /status (signed presence). Fetch there before you trust a light.
 
 Like a light in the dark. You know someone is there. You do not know
 who they are or what they carry.
@@ -59,20 +56,19 @@ def _local_ip() -> str:
 
 def _build_service_info(ServiceInfo, node_id: str):
     ip = _local_ip()
-    # The only thing announced: the node ID (which is itself a truncated
-    # fingerprint of the public key) and a protocol version. No entries.
-    # No content. No private key. Just: a node with this ID exists here.
-    properties = {
+    props = {
         "node_id": node_id,
-        "v": "1",
+        "v": "2",
+        "signed": "1",
     }
+    # Full signature is on GET /status — fetch there to verify the key.
     name = f"{node_id}.{SERVICE_TYPE}"
     return ServiceInfo(
         SERVICE_TYPE,
         name,
         addresses=[socket.inet_aton(ip)],
         port=PRESENCE_PORT,
-        properties=properties,
+        properties=props,
         server=f"{node_id}.local.",
     )
 

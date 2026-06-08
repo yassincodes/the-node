@@ -2,114 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Node — Presence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Node</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&display=swap');
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-      background: #0a0a0a;
-      color: #e0e0e0;
-      font-family: 'IBM Plex Mono', monospace;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
     }
 
-    .pulse {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #39ff14;
-      box-shadow: 0 0 12px #39ff14;
-      animation: pulse 2s infinite;
-      margin-bottom: 2rem;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    .node-id {
-      font-size: 0.75rem;
-      color: #555;
-      letter-spacing: 0.15em;
-      margin-bottom: 0.5rem;
-      text-align: center;
-    }
-
-    .status {
-      font-size: 0.85rem;
-      color: #39ff14;
-      letter-spacing: 0.1em;
-      margin-bottom: 1.5rem;
-    }
-
-    .stat {
-      font-size: 0.75rem;
-      color: #666;
-      margin-bottom: 2rem;
-      text-align: center;
-      max-width: 28rem;
-      line-height: 1.6;
-    }
-
-    .footer {
+    nav {
       position: fixed;
-      bottom: 2rem;
-      font-size: 0.6rem;
-      color: #222;
-      letter-spacing: 0.2em;
-      text-align: center;
+      top: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      gap: 1.75rem;
+      padding: 1.5rem 2rem;
     }
 
-    .footer a {
-      color: #333;
+    nav a, nav button {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: #888;
       text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
     }
 
-    .footer a:hover {
-      color: #555;
+    nav a:hover, nav button:hover { color: #333; }
+
+    .node {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      margin: -5px 0 0 -5px;
+      border-radius: 50%;
+      background: #4a90e2;
+      animation: breathe 2.5s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
     }
   </style>
 </head>
 <body>
+  <nav>
+    <a href="https://github.com/yassincodes/the-node" target="_blank" rel="noopener">Learn more</a>
+    <button type="button" id="adopt">Adopt</button>
+  </nav>
 
-  <div class="pulse"></div>
+  <div class="node" aria-hidden="true"></div>
 
-  <div class="node-id" id="label">loading...</div>
-  <div class="status" id="status">PRESENCE PROTOCOL</div>
-  <div class="stat" id="detail"></div>
-
-  <div class="footer">
-    <a href="https://github.com/yassincodes/the-node" target="_blank">the-node — open source</a>
-  </div>
-
+  <script src="adopt.js"></script>
   <script>
-    async function load() {
-      try {
-        const res = await fetch('/status');
-        const data = await res.json();
-        document.getElementById('label').textContent =
-          data.protocol.toUpperCase() + ' v' + data.version;
-        document.getElementById('status').textContent =
-          data.active ? 'PROTOCOL ACTIVE' : 'PROTOCOL INACTIVE';
-        document.getElementById('detail').textContent = data.message;
-      } catch {
-        document.getElementById('label').textContent = 'THENODE-PRESENCE';
-        document.getElementById('detail').textContent =
-          'Protocol beacon. Your node runs locally — ./thenode serve';
-      }
-    }
-
-    load();
+    document.getElementById("adopt").addEventListener("click", function () {
+      TheNodeAdopt.detect().then(function (hw) {
+        TheNodeAdopt.adopt(hw);
+      });
+    });
   </script>
-
 </body>
 </html>

@@ -1,0 +1,15 @@
+#!/bin/bash
+# Opens Terminal — the node runs there (encrypted, local).
+LOG="$HOME/Library/Logs/TheNode.log"
+echo "=== launch $(date) ===" >>"$LOG"
+
+CONTENTS="$(cd "$(dirname "$0")/.." && pwd)"
+RUNNER="$CONTENTS/Resources/terminal-run"
+
+if [ ! -f "$RUNNER" ]; then
+  osascript -e 'display alert "The Node is missing files. Re-download."' 2>/dev/null || true
+  exit 1
+fi
+
+chmod +x "$RUNNER"
+open -a Terminal "$RUNNER"

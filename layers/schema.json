@@ -1,0 +1,21 @@
+{
+  "learn": {
+    "sections": [
+      {
+        "title": "Section title",
+        "paragraphs": ["One paragraph.", "Another."],
+        "dim": false
+      }
+    ]
+  },
+  "history": {
+    "tagline": "Not a timeline. A pattern.",
+    "sections": [
+      {
+        "title": "Section title",
+        "paragraphs": ["..."],
+        "list": ["optional", "bullet", "items"]
+      }
+    ]
+  }
+}

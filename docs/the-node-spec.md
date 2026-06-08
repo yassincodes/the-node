@@ -121,10 +121,10 @@ No hidden logic. No black box. The code should be able to explain itself.
 
 What the code does today — honestly:
 
-- **Storage:** entries in plain JSON at `~/.thenode/data.json`, each signed with the node's private key
-- **Verification:** `python main.py verify` checks all signatures
-- **Encryption at rest:** not yet — planned; v1 is signed, not encrypted
-- **Network:** local discovery (`discover`), controlled share (`share` + `serve`). Share verifies signature and node ID. No internet-wide discovery yet
+- **Storage:** entries encrypted at `~/.thenode/data.enc`, private key at `private.enc`, vault at `.vault`
+- **Verification:** `./thenode verify` checks all signatures
+- **Encryption at rest:** yes — Argon2id passphrase → Fernet; only salt in `~/.thenode/.vault`. Your passphrase is the only door; make it real.
+- **Network:** local discovery (`discover`), controlled share (`receive` + `share` with pairing code + TLS)
 - **External calls:** none. `ask` uses a local model (Ollama). If none is running, the node stays silent and sends nothing anywhere
 - **Presence:** local only via `python main.py serve` on port 5050
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+pkill -f "tools/serve_site.py" 2>/dev/null || true
+pkill -f "tools/run.py" 2>/dev/null || true
+if [ -x ".venv/bin/python" ]; then
+  exec .venv/bin/python tools/serve_site.py
+fi
+exec python3 tools/serve_site.py

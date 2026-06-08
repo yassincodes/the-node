@@ -24,6 +24,8 @@ fi
 echo ""
 echo "  Done. Your node is ready."
 echo ""
+echo "  You chose a passphrase during setup. Enter it each time you run ./thenode."
+echo ""
 echo "  Try this now:"
 echo ""
 echo "    ./thenode store \"something from your day\""

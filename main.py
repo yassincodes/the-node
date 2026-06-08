@@ -51,11 +51,18 @@ The Node — commands:
   status                Show your node status.
   verify                Check signatures on all stored entries.
   discover [seconds]    See other nodes on your local network.
-  share <id> <host>     Send one entry to another node.
-  serve                 Start local presence server.
+  receive [minutes]   Wait for one entry (shows pairing code, ~5 min).
+  share <id> <host> <code>   Send one entry (code from their receive).
+  serve                 Presence on this machine only — not on Wi-Fi.
   activate              Regenerate keypair (rare — setup does this).
   help                  Show this.
 """)
+
+
+VAULT_COMMANDS = frozenset({
+    "store", "read", "search", "summary", "status", "verify",
+    "share", "receive", "serve", "ask",
+})
 
 
 def main():
@@ -69,6 +76,10 @@ def main():
         return
 
     cmd = args[0]
+
+    if cmd in VAULT_COMMANDS and is_active():
+        from node.vault import require_unlock
+        require_unlock()
 
     if cmd == "activate":
         activate()
@@ -141,12 +152,26 @@ def main():
 
     elif cmd == "share":
         if len(args) < 3:
-            print("Usage: ./thenode share <entry-id> <host>")
-            print("Example: ./thenode share a1b2c3d4 192.168.1.15")
-            print("The other node must be running: ./thenode serve")
+            print("Usage: ./thenode share <entry-id> <host> [pairing-code]")
+            print("Example: ./thenode share a1b2c3d4 192.168.1.15 A1B2C3D4")
+            print("They must run: ./thenode receive")
             return
         from node.share import send
-        print(send(args[1], args[2]))
+        if len(args) >= 4:
+            print(send(args[1], args[2], args[3]))
+        else:
+            print(send(args[1], args[2]))
+
+    elif cmd == "receive":
+        import server
+        minutes = 5
+        if len(args) > 1:
+            try:
+                minutes = int(args[1])
+            except ValueError:
+                print("Usage: ./thenode receive [minutes]")
+                return
+        server.run_receive(minutes=minutes)
 
     elif cmd == "ask":
         if len(args) < 2:

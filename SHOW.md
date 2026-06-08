@@ -66,20 +66,15 @@ Open **http://localhost:5050** in a browser. Green pulse. Node ID. Record depth.
 
 ## Two people (same Wi‑Fi)
 
-**Person A:** `./thenode serve` (leave running)
-
-**Person B:**
-
 ```bash
-./thenode discover
-./thenode share <entry-id> <person-a-ip>
+# On the receiving node:
+./thenode receive
+
+# On your node — they give you the pairing code + IP:
+./thenode share <entry-id> <their-ip> <pairing-code>
 ```
 
-Person A:
-
-```bash
-./thenode read
-```
+Wi-Fi only opens for 5 minutes during `receive`. Pairing code required. Encrypted. Closes after one entry.
 
 One entry crossed. Chosen. Verified. That's the network in miniature.
 

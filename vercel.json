@@ -1,8 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "bash apps/mac/build.sh && bash apps/windows/build.sh",
   "rewrites": [
+    { "source": "/downloads/:file", "destination": "/api/index" },
     { "source": "/status", "destination": "/api/index" },
-    { "source": "/presence", "destination": "/api/index" },
-    { "source": "/", "destination": "/api/index" }
+    { "source": "/layer", "destination": "/api/index" },
+    { "source": "/presence", "destination": "/api/index" }
   ]
 }

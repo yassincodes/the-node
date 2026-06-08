@@ -57,13 +57,15 @@ Checks every stored entry against your public key. Pass or fail. No trust requir
 ```
 
 What happens:
-- Your words are stored in plain JSON on your machine
+- Your words are stored in encrypted JSON at `~/.thenode/data.enc` (private key in `private.enc`)
 - Each entry is signed with your private key at store time
 - Search and summary run locally — no model, no network
 
 What leaves the device: **nothing**
 
-What is not built yet: encryption at rest (entries are signed, not encrypted)
+Passphrase-derived vault (Argon2id → Fernet). Only the salt lives in `~/.thenode/.vault`.
+
+Your passphrase is the only door. Make it real — the code enforces eight characters, not a strong secret.
 
 ---
 
@@ -105,19 +107,20 @@ Two ways to say *I exist*:
 
 ```bash
 ./thenode discover      # other nodes on your Wi-Fi see you
-./thenode serve         # presence page at http://localhost:5050
+```bash
+./thenode serve         # this machine only — not on Wi-Fi
+./thenode receive       # 5 min window + pairing code to accept one share
+```
 ```
 
 What `discover` announces (mDNS, no server):
 - your node ID
 - your local network address
 
-What `serve` returns at `/status`:
+What `serve` returns at `/status` (signed — proves key matches node ID):
 ```json
-{"active": true, "node_id": "abc123...", "record": {"entries": 5, "span_days": 12, "since": "2026-01-01", "until": "2026-06-06", "verified": 5}}
+{"active": true, "node_id": "abc...", "record": {...}, "public_key": "...", "presence_signature": "..."}
 ```
-
-No entry text. Only depth — what the record shows.
 
 What neither reveals: your entries, your keys, your identity
 
@@ -130,25 +133,22 @@ What is not built yet: proof that a discovered node holds the matching private k
 ## Layer 6 — Connection
 
 **File:** `node/share.py`  
-**Endpoint:** `POST /share` on the node running `serve`
+**Endpoint:** `POST /share` only while `./thenode receive` is running
 
 ```bash
-# On the receiving node (leave this running):
-./thenode serve
+# Receiving node — opens Wi-Fi for ~5 min, shows pairing code:
+./thenode receive
 
-# On your node — send one entry to their IP (from discover):
-./thenode share <entry-id> <host>
+# Your node — one entry, their IP, their code:
+./thenode share <entry-id> <host> <pairing-code>
 ```
 
 What happens:
-- You pick one entry and one destination. Nothing else moves.
-- The package contains: the entry, your node ID, your public key
-- The receiver verifies the signature matches the public key
-- The receiver verifies the node ID matches the public key
-- If either fails, the entry is rejected
-- If both pass, it is stored as `source: node:<your-id>`
+- Wi-Fi port is **closed by default**. Only opens during `receive`, with TLS + pairing code.
+- Closes after one entry or when time runs out.
+- Package is signed; receiver verifies before storing.
 
-What leaves your device: **one entry you chose**, to **one host you named**
+What leaves your device: **one entry you chose**, to **one host you named**, with **their code**
 
 What does not happen: auto-sync, bulk export, sharing without your command
 
@@ -185,7 +185,7 @@ Each layer only talks to the layer below it, except share — which only fires w
 - Not a cloud product — there is no cloud
 - Not an API you call — you run it
 - Not alignment written on top — the structure is the alignment
-- Not finished — encryption at rest is open; presence discovery is still unauthenticated until share proves a key
+- Hardened — encrypted at rest, signed presence, pairing-code receive window, TLS on Wi-Fi. Not unhackable — malware and stolen unlocked devices remain
 
 ---
 

@@ -1,0 +1,14 @@
+Deployed locally. For Vercel (one-time, when you feel like it):
+
+1. Push repo to GitHub (git push)
+2. Vercel dashboard → your project → Settings → Environment Variables
+3. Run locally:  python tools/pack_layers.py
+4. Paste the whole THENODE_LAYERS=... line as one variable named THENODE_LAYERS
+5. Redeploy
+
+Local preview (already wired):
+  python tools/serve_site.py
+  → http://127.0.0.1:5055
+
+Layers live in layers/learn.json + layers/history.json (gitignored).
+Edit those anytime, then: python tools/pack_layers.py >> .env

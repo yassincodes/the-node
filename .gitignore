@@ -2,3 +2,8 @@
 .venv/
 __pycache__/
 *.pyc
+dist/
+
+# Truth layers — on the site for people, not in repo for scrapers
+layers/learn.json
+layers/history.json

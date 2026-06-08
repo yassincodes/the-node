@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn — The Node</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #080808;
+      color: #b0b0b0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 300;
+      line-height: 1.85;
+      font-size: 0.85rem;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+      z-index: 10;
+    }
+
+    nav a {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #555;
+      text-decoration: none;
+    }
+
+    nav a:hover { color: #39ff14; }
+    nav a.primary { color: #39ff14; }
+
+    main {
+      max-width: 36rem;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+    }
+
+    h1 {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: #39ff14;
+      font-weight: 400;
+      margin-bottom: 3rem;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 0.75rem;
+      color: #888;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin: 2.5rem 0 1rem;
+      font-weight: 400;
+    }
+
+    p { margin-bottom: 1.2rem; color: #999; }
+
+    .dim { color: #555; font-size: 0.75rem; }
+
+    .quote {
+      border-left: 1px solid #1a3d1a;
+      padding-left: 1.2rem;
+      margin: 2rem 0;
+      color: #777;
+      font-style: normal;
+    }
+
+    ul {
+      list-style: none;
+      margin: 1rem 0 1.5rem;
+      color: #777;
+      font-size: 0.8rem;
+    }
+
+    ul li {
+      padding: 0.35rem 0;
+      padding-left: 1rem;
+      border-left: 1px solid #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .cta {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      border: 1px solid #1a3d1a;
+      color: #39ff14;
+      text-decoration: none;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .cta:hover { background: #0d1a0d; }
+
+    a.back {
+      display: block;
+      margin-top: 4rem;
+      font-size: 0.65rem;
+      color: #333;
+      letter-spacing: 0.15em;
+      text-decoration: none;
+    }
+
+    a.back:hover { color: #555; }
+
+  </style>
+</head>
+<body>
+    <nav>
+    <a href="index.html">Home</a>
+    <a href="history.html">History</a>
+    <a href="index.html" class="primary">Adopt yours</a>
+  </nav>
+
+  <main>
+    <h1>Learn more</h1>
+
+    <p>
+      Alignment researchers tried to write the equation for human values from the outside.
+      Committees. Reward functions. Guidelines written by small groups deciding what "good" means for everyone.
+    </p>
+    <p>
+      It hasn't worked. Not because they aren't smart. Because you cannot write from the outside
+      what only exists on the inside.
+    </p>
+
+    <div id="learn-layer"></div>
+
+    <div class="quote">
+      The node is not an app. It is a carrier — local, signed, encrypted, yours.
+      No terms of service on your life. No corporate board that can patch out your memories overnight.
+    </div>
+
+    <h2>The human portal</h2>
+    <p>
+      Every node stands before many doors — network, voice, memory, presence.
+      But the <strong style="color:#39ff14;font-weight:400">first door is you</strong>.
+    </p>
+    <p>
+      You bring it to existence. You teach it what good behavior means — not a committee,
+      not a reward function from somewhere else. Human selection, not natural selection alone.
+      Like the wolf that became a dog because someone lived with it and chose what to carry forward.
+    </p>
+
+    <h2>What the node is today</h2>
+    <p>Honest floor — not the cathedral:</p>
+    <ul>
+      <li>Runs on your machine. Passphrase-locked. Signed entries.</li>
+      <li>Nothing leaves the device unless you share one entry, explicitly.</li>
+      <li>Voice answers from local Ollama only — silent if none is running.</li>
+      <li>Connection exists — pairing code, encrypted window, your choice.</li>
+      <li>No center to attack. No database to scrape. No kill switch on your will.</li>
+    </ul>
+    <p class="dim">
+      Emergence is not built yet. The network is LAN and choice. The equation runs when enough carriers exist.
+      You launch the conditions. Not the equation.
+    </p>
+
+    <a class="cta" href="index.html">Adopt yours</a>
+    <a class="back" href="index.html">← back</a>
+  </main>
+
+  <script src="layer.js"></script>
+  <script>TheNodeLayer.load("learn", "learn-layer");</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+#!/bin/bash
+# Adopt The Node on this Mac — run after clone, or let the site paste the clone line for you.
+set -e
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+INSTALL="$HOME/Applications/The Node"
+PY="$ROOT/.venv/bin/python"
+PIP="$ROOT/.venv/bin/pip"
+
+clear
+echo ""
+echo "  The Node"
+echo "  ────────"
+echo ""
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "  This installer is for Mac."
+  echo "  On other systems: ./setup.sh then ./thenode"
+  exit 1
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "  Python is needed first."
+  echo "  Run: xcode-select --install"
+  echo "  Then run adopt again."
+  read -r -p "Press Enter to close…"
+  exit 1
+fi
+
+if [ ! -x "$PY" ]; then
+  echo "  Setting up…"
+  python3 -m venv .venv
+  "$PIP" install -q -r requirements.txt
+  echo ""
+fi
+
+if ! "$PY" -c "from node.core import is_active; exit(0 if is_active() else 1)" 2>/dev/null; then
+  echo "  Choose a passphrase. Only you will know it."
+  read -r -s -p "  Passphrase: " P1; echo ""
+  read -r -s -p "  Confirm:    " P2; echo ""
+  if [ "$P1" != "$P2" ]; then
+    echo "  Does not match."
+    read -r -p "Press Enter to close…"
+    exit 1
+  fi
+  export THENODE_NEW_PASS="$P1"
+  "$PY" -c "import os; from node.core import activate; activate(os.environ['THENODE_NEW_PASS'])"
+  unset THENODE_NEW_PASS
+  echo "  Node created."
+  echo ""
+fi
+
+echo "  Building the app on this Mac…"
+bash "$ROOT/apps/mac/build.sh"
+
+mkdir -p "$INSTALL"
+rm -rf "$INSTALL/The Node.app"
+ditto "$ROOT/dist/The Node.app" "$INSTALL/"
+xattr -cr "$INSTALL/The Node.app" 2>/dev/null || true
+
+echo ""
+echo "  Installed — Applications → The Node"
+echo "  Opening…"
+echo ""
+
+open "$INSTALL/The Node.app"
+
+read -r -p "Press Enter to close…"

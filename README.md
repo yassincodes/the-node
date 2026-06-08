@@ -168,7 +168,7 @@ The rest will come.
 ## What it does
 
 - Activates with a local cryptographic keypair — private key never leaves your device
-- Stores natural language input locally in `~/.thenode/` — signed, verifiable
+- Stores natural language input locally in `~/.thenode/` — encrypted and signed
 - Keyword search, summary, and signature verification on your entries
 - Answers questions with `ask` using a model on your own machine — nothing leaves the device
 - Shows a presence page on localhost when you run `serve`
@@ -182,8 +182,7 @@ Discovery reveals only your node ID (a truncated fingerprint of your public key)
 - Share anything without your explicit choice — discovery exchanges presence, never content
 - Connect to a central server — discovery is peer-to-peer (mDNS) on your local network
 - Reach nodes beyond your local network yet (no internet-wide discovery)
-- Authenticate discovered nodes yet — presence is unverified; a node could announce any ID until keys are exchanged (the immune system is not built yet)
-- Encrypt data at rest yet (v1 — signed, not encrypted; see spec)
+- Authenticate discovered nodes yet — verify via `GET /status` signed presence; mDNS alone is not proof
 
 ---
 

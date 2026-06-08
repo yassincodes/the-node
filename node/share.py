@@ -2,12 +2,8 @@
 The Node — Share
 One entry. One node. Your explicit choice.
 
-Nothing transfers automatically. You pick the entry, you pick the
-destination (an IP you saw during discover), you run share.
-
-The entry travels with its original signature and the sender's public
-key. The receiver verifies both before storing. If the signature fails,
-the entry is rejected.
+Receiver runs:  ./thenode receive
+Sender runs:    ./thenode share <entry-id> <host> <pairing-code>
 """
 
 import json
@@ -30,10 +26,6 @@ SHARE_PORT = 5050
 
 
 def receive(package: dict) -> dict:
-    """
-    Accept a shared entry. Verify signature and origin. Store or reject.
-    Called by the local server when another node POSTs to /share.
-    """
     if not is_active():
         return {"ok": False, "error": "node not active"}
 
@@ -64,11 +56,11 @@ def receive(package: dict) -> dict:
     return {"ok": True, "entry_id": stored_id, "from": origin_node_id}
 
 
-def send(entry_id: str, host: str) -> str:
-    """
-    Send one entry to another node at host.
-    The receiver must be running: ./thenode serve
-    """
+def _is_local(host: str) -> bool:
+    return host.strip().lower() in ("127.0.0.1", "localhost", "::1")
+
+
+def send(entry_id: str, host: str, pairing_code: str = None) -> str:
     if not is_active():
         return "Node not active. Run ./setup.sh first."
 
@@ -78,6 +70,14 @@ def send(entry_id: str, host: str) -> str:
 
     if entry.get("source", "").startswith("node:"):
         return "You can only share entries that are yours."
+
+    local = _is_local(host)
+    if not local and not pairing_code:
+        return (
+            "Need a pairing code.\n"
+            "The other person runs:  ./thenode receive\n"
+            "Then you run:  ./thenode share <entry-id> <their-ip> <code>"
+        )
 
     package = {
         "from_node_id": load_node_id(),
@@ -91,24 +91,35 @@ def send(entry_id: str, host: str) -> str:
         },
     }
 
-    url = f"http://{host}:{SHARE_PORT}/share"
-    body = json.dumps(package).encode()
+    scheme = "http" if local else "https"
+    url = f"{scheme}://{host}:{SHARE_PORT}/share"
+    headers = {"Content-Type": "application/json"}
+    if pairing_code:
+        headers["X-Node-Session"] = pairing_code.strip().upper()
+
     req = urllib.request.Request(
         url,
-        data=body,
-        headers={"Content-Type": "application/json"},
+        data=json.dumps(package).encode(),
+        headers=headers,
         method="POST",
     )
 
+    ctx = None
+    if not local:
+        from node.tls import client_context
+        ctx = client_context()
+
     try:
-        with urllib.request.urlopen(req, timeout=10) as response:
+        with urllib.request.urlopen(req, timeout=15, context=ctx) as response:
             result = json.loads(response.read())
     except urllib.error.HTTPError as e:
+        if e.code == 403:
+            return "Rejected — wrong pairing code or receive window closed."
         return f"Share failed: {e.code} {e.reason}"
     except urllib.error.URLError:
         return (
             f"Could not reach {host}.\n"
-            "Is the other node running?  ./thenode serve"
+            "Is the other node running  ./thenode receive  ?"
         )
     except Exception as e:
         return f"Share failed: {e}"
@@ -119,4 +130,4 @@ def send(entry_id: str, host: str) -> str:
     if result.get("status") == "already had this entry":
         return f"Node at {host} already had entry {entry_id}."
 
-    return f"Entry {entry_id} shared with {host}. They stored it from node {load_node_id()}."
+    return f"Entry {entry_id} shared. They stored it from node {load_node_id()}."

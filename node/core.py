@@ -3,84 +3,93 @@ The Node — Core
 Activation, key generation, and local storage.
 """
 
-import os
-import json
 import hashlib
+import json
 from datetime import datetime
 from pathlib import Path
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import serialization, hashes
+
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+
+from node import vault
 
 
-NODE_DIR = Path.home() / ".thenode"
-DATA_FILE = NODE_DIR / "data.json"
-KEY_FILE = NODE_DIR / "private.pem"
+NODE_DIR = vault.NODE_DIR
+DATA_FILE = vault.DATA_FILE  # legacy path reference
+KEY_FILE = vault.KEY_FILE
 PUB_FILE = NODE_DIR / "public.pem"
 ID_FILE = NODE_DIR / "node_id.txt"
 
 
-def _ensure_data_file():
-    """Create an empty store if keys exist but data.json does not."""
-    NODE_DIR.mkdir(exist_ok=True)
-    if not DATA_FILE.exists():
-        with open(DATA_FILE, "w") as f:
-            json.dump({"entries": []}, f)
+def _migrate():
+    vault.migrate_legacy()
 
 
-def activate():
+def activate(passphrase: str = None):
     """
     Activate the node. Generates a local keypair.
     Private key never leaves this device.
     """
     if is_active():
-        _ensure_data_file()
+        vault.migrate_legacy()
         print("Node already active.")
         return load_node_id()
 
-    NODE_DIR.mkdir(exist_ok=True)
+    if passphrase is None:
+        print("\n  Your node will be encrypted with a passphrase.")
+        print("  You will enter it each time you use ./thenode\n")
+        passphrase = vault.prompt_new_passphrase()
+    else:
+        if len(passphrase) < vault.MIN_PASSPHRASE_LEN:
+            raise ValueError(f"Passphrase must be at least {vault.MIN_PASSPHRASE_LEN} characters.")
 
-    # Generate keypair
+    vault.create_vault(passphrase)
+
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
     )
 
-    # Save private key — stays on device only
-    with open(KEY_FILE, "wb") as f:
-        f.write(private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        ))
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    vault.save_private_key_pem(pem)
 
-    # Save public key — this is what other nodes see
     public_key = private_key.public_key()
-    with open(PUB_FILE, "wb") as f:
-        f.write(public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ))
+    pub_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    PUB_FILE.write_bytes(pub_pem)
+    vault._secure_file(PUB_FILE)
 
-    # Generate node ID from public key
     pub_bytes = public_key.public_bytes(
         encoding=serialization.Encoding.DER,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
     )
     node_id = hashlib.sha256(pub_bytes).hexdigest()[:16]
 
-    with open(ID_FILE, "w") as f:
-        f.write(node_id)
+    ID_FILE.write_text(node_id)
+    vault._secure_file(ID_FILE)
 
-    # Initialize empty data store
-    with open(DATA_FILE, "w") as f:
-        json.dump({"entries": []}, f)
+    vault.save_data({"entries": []})
+
+    from node.tls import ensure_tls_material
+    ensure_tls_material()
 
     print(f"Node activated. ID: {node_id}")
     return node_id
 
 
 def is_active():
-    return KEY_FILE.exists() and ID_FILE.exists()
+    if not ID_FILE.exists() or not PUB_FILE.exists():
+        return False
+    if vault.vault_ready():
+        return True
+    # Legacy plain key until first migrate
+    return KEY_FILE.exists()
 
 
 def load_node_id():
@@ -90,8 +99,8 @@ def load_node_id():
 
 
 def load_private_key():
-    with open(KEY_FILE, "rb") as f:
-        return serialization.load_pem_private_key(f.read(), password=None)
+    pem = vault.load_private_key_pem()
+    return serialization.load_pem_private_key(pem, password=None)
 
 
 def load_public_key():
@@ -112,7 +121,6 @@ def node_id_from_public_key(public_key) -> str:
 
 
 def get_entry(entry_id: str):
-    """Find one entry by its id."""
     for entry in read(limit=9999):
         if entry["id"] == entry_id:
             return entry
@@ -120,7 +128,6 @@ def get_entry(entry_id: str):
 
 
 def verify_entry(entry: dict, public_key) -> bool:
-    """Verify an entry's signature against a given public key."""
     signature = bytes.fromhex(entry["signature"])
     public_key.verify(
         signature,
@@ -131,11 +138,16 @@ def verify_entry(entry: dict, public_key) -> bool:
     return True
 
 
+def _save_data(data: dict):
+    vault.save_data(data)
+
+
+def _load_data() -> dict:
+    vault.require_unlock()
+    return vault.load_data()
+
+
 def store_received(entry: dict, origin_node_id: str, origin_public_key: str):
-    """
-    Store an entry received from another node.
-    Original signature and content are kept. Origin is recorded.
-    """
     if not is_active():
         return None
 
@@ -149,39 +161,26 @@ def store_received(entry: dict, origin_node_id: str, origin_public_key: str):
         "received_at": datetime.utcnow().isoformat(),
     }
 
-    with open(DATA_FILE, "r") as f:
-        data = json.load(f)
-
+    data = _load_data()
     for existing in data["entries"]:
         if existing["id"] == received["id"] and existing.get("source") == received["source"]:
-            return None  # already have this
+            return None
 
     data["entries"].append(received)
-
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-
+    _save_data(data)
     return received["id"]
 
 
 def store(text: str, source: str = "computer"):
-    """
-    Store a piece of natural language input.
-    Signs it with the private key so origin is verifiable.
-    source: 'computer' (conscious input)
-    """
     if not is_active():
         print("Node not active. Run ./setup.sh first.")
         return
 
-    _ensure_data_file()
     private_key = load_private_key()
-
-    # Sign the content
     signature = private_key.sign(
         text.encode(),
         padding.PKCS1v15(),
-        hashes.SHA256()
+        hashes.SHA256(),
     )
 
     entry = {
@@ -189,23 +188,18 @@ def store(text: str, source: str = "computer"):
         "timestamp": datetime.utcnow().isoformat(),
         "source": source,
         "content": text,
-        "signature": signature.hex()
+        "signature": signature.hex(),
     }
 
-    with open(DATA_FILE, "r") as f:
-        data = json.load(f)
-
+    data = _load_data()
     data["entries"].append(entry)
-
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+    _save_data(data)
 
     print(f"Stored. Entry ID: {entry['id']}")
     return entry["id"]
 
 
 def verify(entry: dict) -> bool:
-    """Verify an entry — local entries use your key, shared entries use origin key."""
     if entry.get("origin_public_key"):
         pub = serialization.load_pem_public_key(entry["origin_public_key"].encode())
     else:
@@ -214,7 +208,6 @@ def verify(entry: dict) -> bool:
 
 
 def verify_all() -> tuple[int, int]:
-    """Verify all stored entries. Returns (valid_count, invalid_count)."""
     entries = read(limit=9999)
     valid = 0
     invalid = 0
@@ -228,16 +221,11 @@ def verify_all() -> tuple[int, int]:
 
 
 def read(limit: int = 10):
-    """Read the last N entries from your node."""
-    if not DATA_FILE.exists():
-        return []
-    with open(DATA_FILE, "r") as f:
-        data = json.load(f)
-    return data["entries"][-limit:]
+    data = _load_data()
+    return data.get("entries", [])[-limit:]
 
 
 def status():
-    """Show the current state of your node."""
     if not is_active():
         print("Node not active. Run ./setup.sh first.")
         return
@@ -252,6 +240,6 @@ def status():
 ID:      {node_id}
 Record:  {s['entries']} entries · {s['span_days']} days · {s['verified']}/{s['entries'] or 0} verified
 Since:   {s['since'] or '—'}
-Storage: {DATA_FILE}
+Storage: {vault.DATA_ENC} (encrypted)
 Active:  True
 """)
