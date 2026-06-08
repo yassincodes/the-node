@@ -6,6 +6,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 INSTALL="$HOME/Applications/The Node"
+APP_DEST="$INSTALL/The Node.app"
 PY="$ROOT/.venv/bin/python"
 PIP="$ROOT/.venv/bin/pip"
 
@@ -56,15 +57,15 @@ echo "  Building the app on this Mac…"
 bash "$ROOT/apps/mac/build.sh"
 
 mkdir -p "$INSTALL"
-rm -rf "$INSTALL/The Node.app"
-ditto "$ROOT/dist/The Node.app" "$INSTALL/"
-xattr -cr "$INSTALL/The Node.app" 2>/dev/null || true
+rm -rf "$APP_DEST"
+ditto "$ROOT/dist/The Node.app" "$APP_DEST"
+xattr -cr "$APP_DEST" 2>/dev/null || true
 
 echo ""
 echo "  Installed — Applications → The Node"
 echo "  Opening…"
 echo ""
 
-open "$INSTALL/The Node.app"
+open "$APP_DEST"
 
 read -r -p "Press Enter to close…"

@@ -29,7 +29,7 @@ bash apps/mac/build.sh
 
 mkdir -p "$INSTALL"
 rm -rf "$INSTALL/The Node.app"
-ditto "dist/The Node.app" "$INSTALL/"
+ditto "dist/The Node.app" "$INSTALL/The Node.app"
 
 echo ""
 echo "  Done — Applications → The Node"
